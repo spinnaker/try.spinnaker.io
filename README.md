@@ -1,5 +1,8 @@
 # Notes
-
+TODO:
+- [] Research auto scaling  
+- [] Research spot instances 
+- [] ELB + DNS
 ## Setup
 - Install [awscli][]
   - Create [access key]
