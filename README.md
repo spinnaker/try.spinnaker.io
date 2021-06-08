@@ -47,6 +47,13 @@ Check under EKS/Clusters/name-of-cluster/workloads in AWS console to see deploym
 
 More info for [Kubernetes dashboard][]
 
+## Connect to Spinnaker via port forwarding
+```
+kubectl -n spinnaker port-forward svc/spin-deck 9000
+kubectl -n spinnaker port-forward svc/spin-gate 8084
+
+```
+
 ## Teardown
 Don't forget to 
 `terraform destroy`
