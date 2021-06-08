@@ -1,0 +1,145 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: mysql
+spec:
+  ports:
+  - port: 3306
+  selector:
+    app: mysql
+  type: ClusterIP
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: mysql-pvc
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 2Gi
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mysql-config
+data:
+  mysqld.cnf: |
+    # The MySQL  Server configuration file.
+    [mysqld]
+    pid-file        = /var/run/mysqld/mysqld.pid
+    socket          = /var/run/mysqld/mysqld.sock
+    datadir         = /var/lib/mysql
+    #log-error      = /var/log/mysql/error.log
+    # Accept all incoming connections
+    bind-address    = 0.0.0.0
+    # Disabling symbolic-links is recommended to prevent assorted security risks
+    symbolic-links=0
+    max_allowed_packet=500M
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mysql-init-db
+data:
+  clouddriver.sh: |
+    #!/bin/bash -xe
+    echo "Creating Clouddriver DB..."
+    mysql -u root -p${MYSQL_ROOT_PASSWORD} -e \
+      "CREATE SCHEMA IF NOT EXISTS clouddriver DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci; \
+      CREATE USER IF NOT EXISTS 'clouddriver_service'@'%' IDENTIFIED BY '${MYSQL_CD_PASSWORD}'; \
+      CREATE USER IF NOT EXISTS 'clouddriver_migrate'@'%' IDENTIFIED BY '${MYSQL_CD_MIGRATE_PASSWORD}'; \
+      GRANT SELECT, INSERT, UPDATE, DELETE, CREATE, EXECUTE, SHOW VIEW ON clouddriver.* TO 'clouddriver_service'@'%'; \
+      GRANT SELECT, INSERT, UPDATE, DELETE, CREATE, DROP, REFERENCES, INDEX, ALTER, LOCK TABLES, EXECUTE, SHOW VIEW ON clouddriver.* TO clouddriver_migrate@'%'; \
+      CREATE SCHEMA IF NOT EXISTS orca DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci; \
+      CREATE USER IF NOT EXISTS 'orca_service'@'%' IDENTIFIED BY '${MYSQL_ORCA_PASSWORD}'; \
+      CREATE USER IF NOT EXISTS 'orca_migrate'@'%' IDENTIFIED BY '${MYSQL_ORCA_MIGRATE_PASSWORD}'; \
+      GRANT SELECT, INSERT, UPDATE, DELETE, CREATE, EXECUTE, SHOW VIEW ON orca.* TO 'orca_service'@'%'; \
+      GRANT SELECT, INSERT, UPDATE, DELETE, CREATE, DROP, REFERENCES, INDEX, ALTER, LOCK TABLES, EXECUTE, SHOW VIEW ON orca.* TO orca_migrate@'%'; \
+      CREATE SCHEMA IF NOT EXISTS front50 DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci; \
+      CREATE USER IF NOT EXISTS 'front50_service'@'%' IDENTIFIED BY '${MYSQL_F50_PASSWORD}'; \
+      CREATE USER IF NOT EXISTS 'front50_migrate'@'%' IDENTIFIED BY '${MYSQL_F50_MIGRATE_PASSWORD}'; \
+      GRANT SELECT, INSERT, UPDATE, DELETE, CREATE, EXECUTE, SHOW VIEW ON front50.* TO 'front50_service'@'%'; \
+      GRANT SELECT, INSERT, UPDATE, DELETE, CREATE, DROP, REFERENCES, INDEX, ALTER, LOCK TABLES, EXECUTE, SHOW VIEW ON front50.* TO front50_migrate@'%';"
+---
+apiVersion: apps/v1 # for versions before 1.9.0 use apps/v1beta2
+kind: StatefulSet
+metadata:
+  name: mysql
+spec:
+  selector:
+    matchLabels:
+      app: mysql
+  serviceName: mysql
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: mysql
+    spec:
+      containers:
+        - image: mysql:5.7
+          name: mysql
+          env:
+            - name: MYSQL_ROOT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: spin-secrets
+                  key: mysqlRootPassword
+            - name: MYSQL_CD_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: spin-secrets
+                  key: mysqlCdPassword
+            - name: MYSQL_CD_MIGRATE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: spin-secrets
+                  key: mysqlCdMigratePassword
+            - name: MYSQL_ORCA_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: spin-secrets
+                  key: mysqlOrcaPassword
+            - name: MYSQL_ORCA_MIGRATE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: spin-secrets
+                  key: mysqlOrcaMigratePassword
+            - name: MYSQL_F50_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: spin-secrets
+                  key: mysqlF50Password
+            - name: MYSQL_F50_MIGRATE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: spin-secrets
+                  key: mysqlF50MigratePassword
+          args:
+            - "--ignore-db-dir=lost+found"
+          ports:
+            - containerPort: 3306
+              name: mysql
+          volumeMounts:
+            - name: mysql-persistent-storage
+              mountPath: /var/lib/mysql
+            - name: init-db
+              mountPath: /docker-entrypoint-initdb.d
+            - name: mysql-config
+              mountPath: /etc/mysql/mysql.conf.d
+          resources:
+            requests:
+              cpu: 500m
+              memory: 1Gi
+      volumes:
+        - name: mysql-persistent-storage
+          persistentVolumeClaim:
+            claimName: mysql-pvc
+        - name: init-db
+          configMap:
+            name: mysql-init-db
+        - name: mysql-config
+          configMap:
+            name: mysql-config

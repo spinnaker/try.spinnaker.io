@@ -1,0 +1,22 @@
+#-----------------------------------------------------------------------------------------------------------------
+# Example configuration for adding a github account to spinnaker.
+#
+# Documentation: https://docs.armory.io/docs/spinnaker-user-guides/github/
+#-----------------------------------------------------------------------------------------------------------------
+apiVersion: spinnaker.io/v1alpha2
+kind: SpinnakerService
+metadata:
+  name: spinnaker
+spec:
+  spinnakerConfig:
+    config:
+      artifacts:
+        github:
+          enabled: true
+          accounts:
+          - name: github
+            token: encrypted:k8s!n:spin-secrets!k:github-token             # (Secret). GitHub token.
+#            tokenFile: encryptedFile:k8s!n:spin-secrets!k:github-tokenfile # (Secret). File containing a github authentication token.
+#            username: abc                                                  # GitHub username.
+#            password: encrypted:k8s!n:spin-secrets!k:github-password       # (Secret). GitHub password.
+#            usernamePasswordFile: encryptedFile:k8s!n:spin-secrets!k:github-creds.txt  # (Secret). File containing “username:password” to use for GitHub authentication.

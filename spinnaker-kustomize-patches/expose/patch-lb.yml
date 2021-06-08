@@ -1,0 +1,26 @@
+#-----------------------------------------------------------------------------------------------------------------
+# Example generic configuration for exposing spinnaker with Kubernetes service load balancers
+#-----------------------------------------------------------------------------------------------------------------
+apiVersion: spinnaker.io/v1alpha2
+kind: SpinnakerService
+metadata:
+  name: spinnaker
+spec:
+  expose:
+    type: service            # Spinnaker is exposed using kubernetes services. Available options: service, ingress
+    service:
+      type: LoadBalancer     # Kubernetes service type used to expose Spinnaker. Can be ClusterIP, NodePort or LoadBalancer.
+      overrides:
+        gate:
+          publicPort: 8084   # (Optional). Port used to expose Gate.
+        deck:
+          publicPort: 9000   # (Optional). Port used to expose Deck.
+
+  # Public-facing spinnaker urls. If not configured, load balancer urls will be used automatically
+#  spinnakerConfig:
+#    config:
+#      security:
+#        apiSecurity:
+#          overrideBaseUrl: http://localhost:8084
+#        uiSecurity:
+#          overrideBaseUrl: http://localhost:9000

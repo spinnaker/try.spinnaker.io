@@ -1,0 +1,39 @@
+#-----------------------------------------------------------------------------------------------------------------
+# Example configuration for enabling a plugin into spinnaker
+#-----------------------------------------------------------------------------------------------------------------
+apiVersion: spinnaker.io/v1alpha2
+kind: SpinnakerService
+metadata:
+  name: spinnaker
+spec:
+  spinnakerConfig:
+    # spec.spinnakerConfig.profiles - This section contains the YAML of each service's profile
+    profiles:
+      gate:
+        spinnaker:
+          extensibility:
+            deck-proxy: # you need this for plugins with a Deck component
+              enabled: true
+              plugins:
+                Armory.RandomWaitPlugin:
+                  enabled: true
+                  version: 1.1.14
+            repositories:
+              examplePluginsRepo:
+                url: https://raw.githubusercontent.com/spinnaker-plugin-examples/examplePluginRepository/master/plugins.json
+      orca:
+        spinnaker:
+          extensibility:
+           plugins:
+             Armory.RandomWaitPlugin:
+              enabled: true
+              version: 1.1.14
+              extensions:
+               id: armory.randomWaitStage
+               enabled: true
+               config:
+                 defaultMaxWaitTime: 15
+           repositories:
+             examplePluginsRepo:
+              id: examplePluginsRepo
+              url: https://raw.githubusercontent.com/spinnaker-plugin-examples/examplePluginRepository/master/plugins.json

@@ -1,0 +1,23 @@
+#-----------------------------------------------------------------------------------------------------------------
+# Example configuration for enabling monitoring of spinnaker through prometheus endpoints
+#-----------------------------------------------------------------------------------------------------------------
+apiVersion: spinnaker.io/v1alpha2
+kind: SpinnakerService
+metadata:
+  name: spinnaker
+spec:
+  spinnakerConfig:
+    config:
+      metricStores:
+        prometheus:
+          enabled: true
+          add_source_metalabels: true
+
+#    # Config used if prometheus server discover pods through annotations
+#    service-settings:
+#      spinnaker:
+#        kubernetes:
+#          podAnnotations:
+#            prometheus.io/scrape: true
+#            prometheus.io/path: /prometheus_metrics
+#            prometheus.io/port: 8008

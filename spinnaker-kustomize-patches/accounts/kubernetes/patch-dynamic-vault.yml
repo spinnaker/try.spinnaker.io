@@ -1,0 +1,62 @@
+#-----------------------------------------------------------------------------------------------------------------------
+# Example configuration for loading Kubernetes accounts configuration from a vault backend using spring cloud
+# config server.
+# Spring docs: https://cloud.spring.io/spring-cloud-static/spring-cloud-config/2.0.2.RELEASE/single/spring-cloud-config.html#vault-backend
+#
+# Example of json entry stored in vault:
+#
+#  {
+#    "kubernetes": {
+#      "accounts": [
+#      {
+#        "name": "account1",
+#        "kubeconfigFile": <"encryptedFile" or "configserver" reference, or file mounted into clouddriver pod>
+#        "cacheIntervalSeconds": 30,
+#        "cacheThreads": 1,
+#        "cachingPolicies": [],
+#        "configureImagePullSecrets": true,
+#        "customResources": [],
+#        "dockerRegistries": [],
+#        "isAtomicFcr": true,
+#        "kinds": [],
+#        "metrics": false,
+#        "namespaces": [],
+#        "oAuthScopes": [],
+#        "omitKinds": [],
+#        "omitNamespaces": [
+#          "kube-public"
+#        ],
+#        "onlySpinnakerManaged": false,
+#        "permissions": {},
+#        "providerVersion": "V2",
+#        "requiredGroupMembership": [],
+#      }
+#  }
+#-----------------------------------------------------------------------------------------------------------------------
+apiVersion: spinnaker.io/v1alpha2
+kind: SpinnakerService
+metadata:
+  name: spinnaker
+spec:
+  spinnakerConfig:
+    profiles:
+      spinnakerconfig:
+        spring:
+          profiles:
+            include: vault
+          # Load kubernetes account from vault using spring config server. Spring docs: https://cloud.spring.io/spring-cloud-static/spring-cloud-config/2.0.2.RELEASE/single/spring-cloud-config.html#_git_backend
+          cloud:
+            config:
+              server:
+                vault:
+                  scheme: https                                       # Url scheme for talking to vault
+                  host: vault.myorg.com                               # Vault url excluding scheme and port information
+                  port: 443                                           # Vault port
+                  backend: secret                                     # Name of backend in Vault where kubernetes accounts are stored
+                  kvVersion: 2                                        # In case of using key value store, this is the API version
+                  default-key: spinnaker/clouddriver                  # Path within Vault where clouddriver information is stored
+                  token: encrypted:k8s!n:spin-secrets!k:vaultToken    # (Secret). Vault token
+    config:
+      providers:
+        kubernetes:
+          enabled: true
