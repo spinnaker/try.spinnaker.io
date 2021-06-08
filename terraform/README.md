@@ -38,7 +38,7 @@ Check under EKS/Clusters/name-of-cluster/workloads in AWS console to see deploym
 #### Deploy dashboard
 `kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/v2.0.5/aio/deploy/recommended.yaml`
 #### Create Service Account 
-`kubectl apply -f eks-admin-service-account.yaml`
+`kubectl apply -f sample/eks-admin-service-account.yaml`
 #### Connect to the dashboard
 - Get the auth token for eks-admin via 
 `kubectl -n kube-system describe secret $(kubectl -n kube-system get secret | grep eks-admin | awk '{print $1}')`

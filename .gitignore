@@ -34,3 +34,17 @@ override.tf.json
 terraform.rc
 
 kubeconfig*
+
+# ignore kustomize stuff
+**/secrets/files/*
+**/!secrets/files/secretfile-example
+secrets.env
+*-local.yml
+*-local.yaml
+*-local.env
+*-local.json
+!halyard-local.yml
+operator/deploy
+deploy_log.txt
+
+

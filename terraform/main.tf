@@ -96,4 +96,8 @@ resource "aws_s3_bucket" "bucket-2021" {
   }
 }
 
-# TODO: add resource "aws_s3_bucket_policy" "b" 
+resource "aws_iam_role_policy_attachment" "s3-full" {
+  policy_arn = "arn:aws:iam::aws:policy/AmazonS3FullAccess"
+  role       = module.eks.worker_iam_role_name
+}
+
