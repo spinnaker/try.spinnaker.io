@@ -1,8 +1,10 @@
 # Notes
+.tf files inspired from [terraform-aws-eks/examples][] 
+
 TODO:
-- [] Research auto scaling  
-- [] Research spot instances 
-- [] ELB + DNS
+- [ ] Research auto scaling  
+- [ ] Research spot instances 
+- [ ] ELB + DNS
 ## Setup
 - Install [awscli][]
   - Create [access key]
@@ -63,3 +65,4 @@ Don't forget to
 [Terraform]: https://learn.hashicorp.com/tutorials/terraform/install-cli
 [eks through kubectl]: https://docs.aws.amazon.com/eks/latest/userguide/getting-started-console.html#eks-configure-kubectl
 [Kubernetes dashboard]: https://docs.aws.amazon.com/eks/latest/userguide/dashboard-tutorial.html
+[terraform-aws-eks/examples]: https://github.com/terraform-aws-modules/terraform-aws-eks/tree/master/examples/basic 
