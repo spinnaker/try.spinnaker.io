@@ -17,23 +17,21 @@ spec:
       notifications: {}          # How spinnaker sends notifications about pipeline events.
       persistentStorage: {}      # How spinnaker persists applications and pipelines.
       pubsub: {}                 # Integration with pubsub providers.
-      providers: 
-        security: 
-          authz:
+      providers: {}              # Cloud providers supported by spinnaker: kubernetes, aws, gcp, etc.
+      repository: {}             # Settings for artifact repositories.
+      security:                  # Authentication and authorization.
+        authz:
             enabled: true
             groupMembership:
               service: EXTERNAL
-          authn:
-            enabled: true
-          apiSecurity:
-            overrideBaseUrl: https://try.gsoc.armory.io/api/v1
-          uiSecurity:
-            ssl:
-              enabled: false
-            overrideBaseUrl: https://try.gsoc.armory.io
-                    # Cloud providers supported by spinnaker: kubernetes, aws, gcp, etc.
-      repository: {}             # Settings for artifact repositories.
-      security: {}               # Authentication and authorization.
+        authn:
+          enabled: true
+        apiSecurity:
+          overrideBaseUrl: https://try.gsoc.armory.io/api/v1
+        uiSecurity:
+          ssl:
+            enabled: false
+          overrideBaseUrl: https://try.gsoc.armory.io
       spinnaker: {}              # Configurations for plugins
 
     # ------- Service config overrides, equivalent to "~/.hal/default/profiles" from Halyard.
