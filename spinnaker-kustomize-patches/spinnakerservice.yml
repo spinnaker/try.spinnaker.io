@@ -17,7 +17,21 @@ spec:
       notifications: {}          # How spinnaker sends notifications about pipeline events.
       persistentStorage: {}      # How spinnaker persists applications and pipelines.
       pubsub: {}                 # Integration with pubsub providers.
-      providers: {}              # Cloud providers supported by spinnaker: kubernetes, aws, gcp, etc.
+      providers: 
+        security: 
+          authz:
+            enabled: true
+            groupMembership:
+              service: EXTERNAL
+          authn:
+            enabled: true
+          apiSecurity:
+            overrideBaseUrl: https://try.gsoc.armory.io/api/v1
+          uiSecurity:
+            ssl:
+              enabled: false
+            overrideBaseUrl: https://try.gsoc.armory.io
+                    # Cloud providers supported by spinnaker: kubernetes, aws, gcp, etc.
       repository: {}             # Settings for artifact repositories.
       security: {}               # Authentication and authorization.
       spinnaker: {}              # Configurations for plugins
@@ -27,7 +41,28 @@ spec:
     profiles:
       spinnaker: {}              # Settings in this section are applied to all spinnaker services. Equivalent of "spinnaker-local.yml"
       spinnakerconfig: {}        # Settings in this section are applied to all spinnaker services. Equivalent of "spinnakerconfig.yml", which is in turn equivalent of "bootstrap.yml" of spring boot applications.
-      gate: {}
+      gate: 
+        cors:
+          allow-mode: "list"
+          allowed-origins: >
+            http://localhost:9000,
+            https://localhost:9000
+          expectLocalhost: true
+        security:
+          basicform:
+            enabled: true
+          user:
+            name: admin
+            password: password123
+        server:
+          servlet:
+            context-path: /api/v1
+          tomcat:
+            httpsServerPort: X-Forwarded-Port
+            internalProxies: .*
+            protocolHeader: X-Forwarded-Proto
+            remoteIpHeader: X-Forwarded-For
+      
       orca: {}
       rosco: {}
       echo: {}
@@ -59,3 +94,5 @@ spec:
     igor: {}
     clouddriver: {}
     front50: {}
+
+
