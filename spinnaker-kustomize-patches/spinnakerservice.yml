@@ -27,11 +27,11 @@ spec:
         authn:
           enabled: true
         apiSecurity:
-          overrideBaseUrl: https://try.gsoc.armory.io/api/v1
+          overrideBaseUrl: http://localhost:9000 #https://try.gsoc.armory.io/api/v1
         uiSecurity:
           ssl:
             enabled: false
-          overrideBaseUrl: https://try.gsoc.armory.io
+          overrideBaseUrl: http://localhost:9000 #https://try.gsoc.armory.io
       spinnaker: {}              # Configurations for plugins
 
     # ------- Service config overrides, equivalent to "~/.hal/default/profiles" from Halyard.
@@ -44,7 +44,9 @@ spec:
           allow-mode: "list"
           allowed-origins: >
             http://localhost:9000,
-            https://localhost:9000
+            https://localhost:9000,
+            http://localhost:8084,
+            https://localhost:8084
           expectLocalhost: true
         security:
           basicform:
@@ -73,7 +75,8 @@ spec:
     # ------- Section "spec.kustomize" gives greater control. Equivalent to "~/.hal/default/service-settings" from Halyard.
     service-settings:
       spinnaker: {}              # Configurations that apply to all services
-      gate: {}
+      gate: 
+        healthEndpoint: /api/v1/health
       orca: {}
       rosco: {}
       echo: {}
