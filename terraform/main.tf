@@ -21,7 +21,7 @@ data "aws_availability_zones" "available" {
 }
 
 locals {
-  cluster_name = "test-eks-${random_string.suffix.result}"
+  cluster_name = "try-spinnaker-io-eks-${random_string.suffix.result}"
 }
 
 resource "random_string" "suffix" {
@@ -33,7 +33,7 @@ module "vpc" {
   source  = "terraform-aws-modules/vpc/aws"
   version = "~> 2.47"
 
-  name                 = "test-vpc"
+  name                 = "try-spinnaker-io-vpc"
   cidr                 = "10.0.0.0/16"
   azs                  = data.aws_availability_zones.available.names
   private_subnets      = ["10.0.1.0/24", "10.0.2.0/24", "10.0.3.0/24"]
@@ -60,7 +60,7 @@ module "eks" {
   subnets         = module.vpc.private_subnets
 
   tags = {
-    Environment = "test"
+    Environment = "dev"
     GithubRepo  = "terraform-aws-eks"
     GithubOrg   = "terraform-aws-modules"
   }
@@ -69,10 +69,10 @@ module "eks" {
 
   worker_groups = [
     {
-      name                          = "worker-group-1"
-      instance_type                 = "t3.xlarge"
-      additional_userdata           = "echo foo bar"
-      asg_desired_capacity          = 1
+      name                 = "worker-group-1"
+      instance_type        = "t3.xlarge"
+      additional_userdata  = "echo foo bar"
+      asg_desired_capacity = 1
       # additional_security_group_ids = [aws_security_group.worker_group_mgmt_one.id]
     },
     # {
@@ -105,11 +105,11 @@ resource "aws_iam_role_policy_attachment" "s3-full" {
 
 resource "aws_route53_record" "validation_record" {
   for_each = {
-  for dvo in aws_acm_certificate.cert.domain_validation_options : dvo.domain_name => {
-    name   = dvo.resource_record_name
-    record = dvo.resource_record_value
-    type   = dvo.resource_record_type
-  }
+    for dvo in aws_acm_certificate.cert.domain_validation_options : dvo.domain_name => {
+      name   = dvo.resource_record_name
+      record = dvo.resource_record_value
+      type   = dvo.resource_record_type
+    }
   }
   allow_overwrite = true
   name            = each.value.name
@@ -136,10 +136,10 @@ data "aws_route53_zone" "zone" {
 # } 
 
 variable "namespace" {
-    default = "spinnaker"
+  default = "spinnaker"
 }
 variable "public_facing" {
-    default = true
+  default = true
 }
 
 resource "aws_security_group" "allow_443" {
@@ -172,24 +172,24 @@ resource "aws_security_group" "allow_443" {
 resource "kubernetes_service" "spin-gate" {
   metadata {
     labels = {
-      app= "spin"
-      cluster= "spin-gate"
+      app     = "spin"
+      cluster = "spin-gate"
     }
-    name= "spin-gate-custom"
-    namespace= var.namespace
+    name      = "spin-gate-custom"
+    namespace = var.namespace
     annotations = {
       "alb.ingress.kubernetes.io/healthcheck-protocol" = "HTTP"
-      "alb.ingress.kubernetes.io/backend-protocol" = "HTTP"
+      "alb.ingress.kubernetes.io/backend-protocol"     = "HTTP"
     }
   }
   spec {
     port {
-      port = 8084
+      port     = 8084
       protocol = "TCP"
     }
     selector = {
-      app= "spin"
-      cluster= "spin-gate"
+      app     = "spin"
+      cluster = "spin-gate"
     }
     type = "NodePort"
   }
@@ -197,61 +197,61 @@ resource "kubernetes_service" "spin-gate" {
 variable "x509_port" {
   default = 8443
 }
-resource "kubernetes_service" "spin-gate-api" {
-  metadata {
-    labels = {
-      app= "spin"
-      cluster= "spin-gate"
-    }
-    name= "spin-gate-api"
-    namespace=var.namespace
-    annotations = {
-      ## Null here removes the annotation when it's public facing.  If the annotation is there at all with ANY value it creates it as private... UGH
-      "service.beta.kubernetes.io/aws-load-balancer-internal" = (var.public_facing ? null : "true")
-      "service.beta.kubernetes.io/aws-load-balancer-type" = "nlb"
-      "service.beta.kubernetes.io/aws-load-balancer-extra-security-groups" = aws_security_group.allow_443.id
-    }
-  }
-  spec {
-    port {
-      port = var.x509_port
-      protocol = "TCP"
-    }
-    selector = {
-      app= "spin"
-      cluster= "spin-gate"
-    }
-    type = "LoadBalancer"
-  }
-}
+# resource "kubernetes_service" "spin-gate-api" {
+#   metadata {
+#     labels = {
+#       app     = "spin"
+#       cluster = "spin-gate"
+#     }
+#     name      = "spin-gate-api"
+#     namespace = var.namespace
+#     annotations = {
+#       ## Null here removes the annotation when it's public facing.  If the annotation is there at all with ANY value it creates it as private... UGH
+#       "service.beta.kubernetes.io/aws-load-balancer-internal"              = (var.public_facing ? null : "true")
+#       "service.beta.kubernetes.io/aws-load-balancer-type"                  = "nlb"
+#       "service.beta.kubernetes.io/aws-load-balancer-extra-security-groups" = aws_security_group.allow_443.id
+#     }
+#   }
+#   spec {
+#     port {
+#       port     = var.x509_port
+#       protocol = "TCP"
+#     }
+#     selector = {
+#       app     = "spin"
+#       cluster = "spin-gate"
+#     }
+#     type = "LoadBalancer"
+#   }
+# }
 resource "kubernetes_service" "spin-deck" {
   metadata {
     labels = {
-      app= "spin"
-      cluster= "spin-deck"
+      app     = "spin"
+      cluster = "spin-deck"
     }
-    name= "spin-deck-custom"
-    namespace=var.namespace
+    name      = "spin-deck-custom"
+    namespace = var.namespace
     annotations = {
       "alb.ingress.kubernetes.io/healthcheck-protocol" = "HTTP"
-      "alb.ingress.kubernetes.io/backend-protocol" = "HTTP"
+      "alb.ingress.kubernetes.io/backend-protocol"     = "HTTP"
     }
   }
   spec {
     port {
-      port = 9000
+      port     = 9000
       protocol = "TCP"
     }
     selector = {
-      app= "spin"
-      cluster= "spin-deck"
+      app     = "spin"
+      cluster = "spin-deck"
     }
     type = "NodePort"
   }
 }
 
 resource "aws_acm_certificate" "cert" {
-  domain_name = "try.gsoc.armory.io"
+  domain_name       = "try.gsoc.armory.io"
   validation_method = "DNS"
 }
 
@@ -262,20 +262,20 @@ resource "aws_acm_certificate_validation" "cert" {
 
 resource "kubernetes_ingress" "alb" {
   metadata {
-    name = "spinnaker-ingress"
+    name      = "spinnaker-ingress"
     namespace = var.namespace
     annotations = {
-      "kubernetes.io/ingress.class" = "alb"
-      "alb.ingress.kubernetes.io/tags" = "Name=spinnaker-ingress"
-      "alb.ingress.kubernetes.io/scheme" = var.public_facing ? "internet-facing" : "internal"
-      "alb.ingress.kubernetes.io/certificate-arn" = aws_acm_certificate.cert.arn
-      "alb.ingress.kubernetes.io/listen-ports" = "[{\"HTTPS\":443},{\"HTTP\": 80}]"
+      "kubernetes.io/ingress.class"                        = "alb"
+      "alb.ingress.kubernetes.io/tags"                     = "Name=spinnaker-ingress"
+      "alb.ingress.kubernetes.io/scheme"                   = var.public_facing ? "internet-facing" : "internal"
+      "alb.ingress.kubernetes.io/certificate-arn"          = aws_acm_certificate.cert.arn
+      "alb.ingress.kubernetes.io/listen-ports"             = "[{\"HTTPS\":443},{\"HTTP\": 80}]"
       "alb.ingress.kubernetes.io/load-balancer-attributes" = "routing.http2.enabled=true"
-      "alb.ingress.kubernetes.io/actions.denied-access" = "{\"Type\":\"fixed-response\",\"FixedResponseConfig\":{\"ContentType\":\"text/plain\",\"StatusCode\":\"401\",\"MessageBody\":\"NotAllowed\"}}"
-      "alb.ingress.kubernetes.io/security-groups" = aws_security_group.allow_443.id
-      "alb.ingress.kubernetes.io/success-codes" = "404,200"
-      "alb.ingress.kubernetes.io/actions.ssl-redirect" = "{\"Type\":\"redirect\", \"RedirectConfig\": { \"Protocol\": \"HTTPS\", \"Port\": \"443\", \"StatusCode\": \"HTTP_301\"}}"
-      "alb.ingress.kubernetes.io/waf-acl-id" = null
+      "alb.ingress.kubernetes.io/actions.denied-access"    = "{\"Type\":\"fixed-response\",\"FixedResponseConfig\":{\"ContentType\":\"text/plain\",\"StatusCode\":\"401\",\"MessageBody\":\"NotAllowed\"}}"
+      "alb.ingress.kubernetes.io/security-groups"          = aws_security_group.allow_443.id
+      "alb.ingress.kubernetes.io/success-codes"            = "404,200"
+      "alb.ingress.kubernetes.io/actions.ssl-redirect"     = "{\"Type\":\"redirect\", \"RedirectConfig\": { \"Protocol\": \"HTTPS\", \"Port\": \"443\", \"StatusCode\": \"HTTP_301\"}}"
+      "alb.ingress.kubernetes.io/waf-acl-id"               = null
     }
   }
   spec {
@@ -289,15 +289,22 @@ resource "kubernetes_ingress" "alb" {
           }
         }
         path {
+          path = "/api223123213/v1/*"
+          backend {
+            service_name = "${kubernetes_service.spin-gate.metadata[0].labels.cluster}-custom"
+            service_port = "8084"
+          }
+        }
+        path {
           path = "/*"
           backend {
             service_name = "${kubernetes_service.spin-deck.metadata[0].labels.cluster}-custom"
             service_port = "9000"
           }
         }
-       }
       }
     }
+  }
 }
 
 # output "api_dns" {
