@@ -7,7 +7,7 @@ spec:
     # ------- Main config section, equivalent to "~/.hal/config" from Halyard
     config:
       version: 1.25.5            # Spinnaker version to deploy
-#      armory: {}                 # Features only available in Armory Spinnaker distribution.
+      # armory: {}               # Features only available in Armory Spinnaker distribution.
       artifacts: {}              # Artifacts are "things" that can be deployed or used within spinnaker: docker images, github files, etc.
       canary: {}                 # Settings used for performing automated canary analysis.
       ci: {}                     # Settings for continuous integration system like jenkins, google cloud build, etc.
@@ -19,7 +19,22 @@ spec:
       pubsub: {}                 # Integration with pubsub providers.
       providers: {}              # Cloud providers supported by spinnaker: kubernetes, aws, gcp, etc.
       repository: {}             # Settings for artifact repositories.
-      security: {}               # Authentication and authorization.
+      security:                  # Authentication and authorization.
+        # authz:
+        #   enabled: false
+        #   groupMembership:
+        #     service: EXTERNAL
+        # authn:
+        #   enabled: false
+        apiSecurity:
+          # ssl:
+          #   enabled: false
+          overrideBaseUrl: https://try.gsoc.armoy.io/api/v1 #https://gate.try.gsoc.armory.io       # Specify your DNS name for Gate with https scheme
+          corsAccessPattern: https://try.gsoc.armoy.io/
+        uiSecurity:
+          # ssl:
+          #   enabled: false
+          overrideBaseUrl: https://try.gsoc.armory.io       # Specify your DNS name for Deck with https scheme      
       spinnaker: {}              # Configurations for plugins
 
     # ------- Service config overrides, equivalent to "~/.hal/default/profiles" from Halyard.
@@ -27,7 +42,38 @@ spec:
     profiles:
       spinnaker: {}              # Settings in this section are applied to all spinnaker services. Equivalent of "spinnaker-local.yml"
       spinnakerconfig: {}        # Settings in this section are applied to all spinnaker services. Equivalent of "spinnakerconfig.yml", which is in turn equivalent of "bootstrap.yml" of spring boot applications.
-      gate: {}
+      gate: #{}
+        services:
+          rosco:
+            enabled: true
+            baseUrl: http://spin-rosco.spinnaker:8087
+          keel:
+            baseUrl: http://spin-rosco.spinnaker:8087
+            enabled: true
+        cors:
+          allow-mode: "list"
+          allowed-origins: >
+            http://try.gsoc.armory.io,
+            https://try.gsoc.armory.io,
+          # http://localhost:9000,
+          # https://localhost:9000,
+          # http://localhost:8084,
+          # https://localhost:8084
+          expectLocalhost: false
+        # security:
+        #   basicform:
+        #     enabled: true
+        #   user:
+        #     name: spin
+        #     password: veryspin
+        server:
+          servlet:
+            context-path: /api/v1
+          tomcat:
+            httpsServerPort: X-Forwarded-Port
+            internalProxies: .*
+            protocolHeader: X-Forwarded-Proto
+            remoteIpHeader: X-Forwarded-For
       orca: {}
       rosco: {}
       echo: {}
@@ -40,15 +86,23 @@ spec:
     # ------- Section "spec.kustomize" gives greater control. Equivalent to "~/.hal/default/service-settings" from Halyard.
     service-settings:
       spinnaker: {}              # Configurations that apply to all services
-      gate: {}
+      gate: #{}
+        healthEndpoint: /api/v1/health
       orca: {}
       rosco: {}
       echo: {}
       igor: {}
       clouddriver: {}
       front50: {}
-
-  expose: {}            # Controls how spinnaker is exposed outside of the cluster.
+  expose: {}              # Controls how spinnaker is exposed outside of the cluster.
+    # type: ingress
+    # type: service
+    # service:
+    #   type: LoadBalancer
+    # annotations:
+    #   service.beta.kubernetes.io/aws-load-balancer-backend-protocol: http
+    #   service.beta.kubernetes.io/aws-load-balancer-ssl-cert: arn:aws:acm:us-east-2:602961672324:certificate/29282c67-df3a-42c8-b82b-ee22379521c1 # Replace with your cert ARN
+    #   service.beta.kubernetes.io/aws-load-balancer-ssl-ports: 80,443
   validation: {}        # Enabled/disables some validations done by the operator's admission webhook when deploying spinnaker.
   kustomize:            # Free form kustomize patches for changing how spinnaker deployments and services are generated.
     deck: {}

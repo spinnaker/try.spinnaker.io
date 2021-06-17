@@ -66,3 +66,14 @@ Don't forget to
 [eks through kubectl]: https://docs.aws.amazon.com/eks/latest/userguide/getting-started-console.html#eks-configure-kubectl
 [Kubernetes dashboard]: https://docs.aws.amazon.com/eks/latest/userguide/dashboard-tutorial.html
 [terraform-aws-eks/examples]: https://github.com/terraform-aws-modules/terraform-aws-eks/tree/master/examples/basic 
+
+
+# todo pt2 
+1) apply the iam 
+2) attach iam to worker nodes
+3) add cert-manager + lb controller 
+
+https://kubernetes-sigs.github.io/aws-load-balancer-controller/v2.2/deploy/installation/
+
+
+attach load balancer security group to worker node security group

@@ -14,7 +14,6 @@ provider "kubernetes" {
   host                   = data.aws_eks_cluster.cluster.endpoint
   cluster_ca_certificate = base64decode(data.aws_eks_cluster.cluster.certificate_authority.0.data)
   token                  = data.aws_eks_cluster_auth.cluster.token
-  load_config_file       = false
 }
 
 data "aws_availability_zones" "available" {
@@ -57,8 +56,8 @@ module "eks" {
   source          = "terraform-aws-modules/eks/aws"
   cluster_name    = local.cluster_name
   cluster_version = "1.20"
-  subnets         = module.vpc.private_subnets
-
+  #subnets         = module.vpc.private_subnets
+  subnets         = concat(module.vpc.public_subnets, module.vpc.private_subnets)
   tags = {
     Environment = "test"
     GithubRepo  = "terraform-aws-eks"
@@ -101,3 +100,194 @@ resource "aws_iam_role_policy_attachment" "s3-full" {
   role       = module.eks.worker_iam_role_name
 }
 
+# look into creating module
+
+# resource "null_resource" "spinnaker-operator" {
+#   provisioner "local-exec" {
+#     command = "bash run-operator.sh ${module.eks.cluster_id}"
+#   }
+#   depends_on = [
+#     aws_s3_bucket.bucket-2021, aws_iam_role_policy_attachment.s3-full, module.eks 
+#   ]
+# }
+
+/////////////////////////// Networking stuffs ////////////////////////////////////////////
+variable "namespace" {
+  default = "spinnaker"
+}
+
+variable "public_facing" {
+  default = true
+}
+
+data "aws_route53_zone" "zone" {
+  # prvoider = aws.
+  # name = "spinnaker.io"
+  name = "gsoc.armory.io"
+}
+
+resource "aws_route53_record" "endpoint" {
+  zone_id = data.aws_route53_zone.zone.id
+  name = "try.gsoc.armory.io"
+  records = [
+    kubernetes_ingress.alb.status.0.load_balancer.0.ingress.0.hostname
+  ]
+  ttl = 600
+  type = "CNAME"
+} 
+
+resource "aws_route53_record" "validation_record" {
+  for_each = {
+    for dvo in aws_acm_certificate.cert.domain_validation_options : dvo.domain_name => {
+      name   = dvo.resource_record_name
+      record = dvo.resource_record_value
+      type   = dvo.resource_record_type
+    }
+  }
+  allow_overwrite = true
+  name            = each.value.name
+  records         = [each.value.record]
+  ttl             = 60
+  type            = each.value.type
+  zone_id         = data.aws_route53_zone.zone.zone_id
+}
+
+resource "aws_security_group" "allow_443" {
+  name        = "allow_443"
+  description = "Allow TCP on 443 inbound traffic"
+  vpc_id      = module.vpc.vpc_id
+  ingress {
+    description = "Allow 443 TLS"
+    from_port   = 443
+    to_port     = 443
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+  ingress {
+    description = "Allow 80 TLS"
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+  egress {
+    description = "Allow The load balancer to talk to anything"
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+  tags = {
+    Name = "allow_https"
+  }
+}
+
+resource "aws_acm_certificate" "cert" {
+  domain_name       = "try.gsoc.armory.io"
+  validation_method = "DNS"
+}
+
+resource "aws_acm_certificate_validation" "cert" {
+  certificate_arn         = aws_acm_certificate.cert.arn
+  validation_record_fqdns = [for record in aws_route53_record.validation_record : record.fqdn]
+}
+
+// depends on spin-deck
+resource "kubernetes_service" "spin-deck" {
+  metadata {
+    labels = {
+      app     = "spin"
+      cluster = "spin-deck"
+    }
+    name      = "spin-deck-custom"
+    namespace = var.namespace
+    annotations = {
+      "alb.ingress.kubernetes.io/healthcheck-protocol" = "HTTP"
+      "alb.ingress.kubernetes.io/backend-protocol"     = "HTTP"
+    }
+  }
+  spec {
+    port {
+      port     = 9000
+      protocol = "TCP"
+    }
+    selector = {
+      app     = "spin"
+      cluster = "spin-deck"
+    }
+    type = "NodePort"
+  }
+}
+
+resource "kubernetes_service" "spin-gate" {
+  metadata {
+    labels = {
+      app     = "spin"
+      cluster = "spin-gate"
+    }
+    name      = "spin-gate-custom"
+    namespace = var.namespace
+    annotations = {
+      "alb.ingress.kubernetes.io/healthcheck-protocol" = "HTTP"
+      "alb.ingress.kubernetes.io/backend-protocol"     = "HTTP"
+    }
+  }
+  spec {
+    port {
+      port     = 8084
+      protocol = "TCP"
+    }
+    selector = {
+      app     = "spin"
+      cluster = "spin-gate"
+    }
+    type = "NodePort"
+  }
+}
+
+resource "kubernetes_ingress" "alb" {
+  metadata {
+    name      = "spinnaker-ingress"
+    namespace = var.namespace
+    annotations = {
+      "kubernetes.io/ingress.class"                        = "alb"
+      "alb.ingress.kubernetes.io/tags"                     = "Name=spinnaker-ingress"
+      "alb.ingress.kubernetes.io/scheme"                   = var.public_facing ? "internet-facing" : "internal"
+      "alb.ingress.kubernetes.io/certificate-arn"          = aws_acm_certificate.cert.arn
+      "alb.ingress.kubernetes.io/listen-ports"             = "[{\"HTTPS\":443},{\"HTTP\": 80}]"
+      "alb.ingress.kubernetes.io/load-balancer-attributes" = "routing.http2.enabled=true"
+      "alb.ingress.kubernetes.io/actions.denied-access"    = "{\"Type\":\"fixed-response\",\"FixedResponseConfig\":{\"ContentType\":\"text/plain\",\"StatusCode\":\"401\",\"MessageBody\":\"NotAllowed\"}}"
+      "alb.ingress.kubernetes.io/security-groups"          = aws_security_group.allow_443.id
+      "alb.ingress.kubernetes.io/success-codes"            = "404,200"
+      "alb.ingress.kubernetes.io/actions.ssl-redirect"     = "{\"Type\":\"redirect\", \"RedirectConfig\": { \"Protocol\": \"HTTPS\", \"Port\": \"443\", \"StatusCode\": \"HTTP_301\"}}"
+      "alb.ingress.kubernetes.io/waf-acl-id"               = null
+#      "alb.ingress.kubernetes.io/target-type"              = "ip"
+
+    }
+  }
+  wait_for_load_balancer = true
+  spec {
+    rule {
+      http {
+        path {
+          path = "/api/v1/*"
+          backend {
+            service_name = kubernetes_service.spin-gate.metadata.0.name
+            service_port = "8084"
+          }
+        }
+        path {
+          path = "/*"
+          backend {
+            service_name = kubernetes_service.spin-deck.metadata.0.name
+            service_port = "9000"
+          }
+        }
+      }
+    }
+  }
+}
+
+output "alb" {
+  value = kubernetes_ingress.alb
+}
