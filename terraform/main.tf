@@ -72,7 +72,7 @@ module "eks" {
       instance_type                 = "t3.xlarge"
       additional_userdata           = "echo foo bar"
       asg_desired_capacity          = 1
-      # additional_security_group_ids = [aws_security_group.worker_group_mgmt_one.id]
+      # additional_security_group_ids = [aws_security_group.allow_lb_to_workers.id]
     },
     # {
     #   name                          = "worker-group-2"
@@ -83,7 +83,7 @@ module "eks" {
     # },
   ]
 
-  # worker_additional_security_group_ids = [aws_security_group.all_worker_mgmt.id]
+  worker_additional_security_group_ids = ["${aws_security_group.allow_lb_to_workers.id}"]
 }
 
 resource "aws_s3_bucket" "bucket-2021" {
@@ -120,21 +120,22 @@ variable "public_facing" {
   default = true
 }
 
+resource "aws_iam_policy" "AWSLoadBalancerControllerIAMPolicy" {
+  name        = "AWSLoadBalancerControllerIAMPolicy"
+  description = "https://raw.githubusercontent.com/kubernetes-sigs/aws-load-balancer-controller/v2.2.0/docs/install/iam_policy.json"
+  policy      = file("AWSLoadBalancerControllerIAMPolicy.json")
+}
+
+resource "aws_iam_role_policy_attachment" "aws-lbc-attach" {
+  role       = module.eks.worker_iam_role_name
+  policy_arn = aws_iam_policy.AWSLoadBalancerControllerIAMPolicy.arn
+}
+
 data "aws_route53_zone" "zone" {
   # prvoider = aws.
   # name = "spinnaker.io"
   name = "gsoc.armory.io"
 }
-
-resource "aws_route53_record" "endpoint" {
-  zone_id = data.aws_route53_zone.zone.id
-  name = "try.gsoc.armory.io"
-  records = [
-    kubernetes_ingress.alb.status.0.load_balancer.0.ingress.0.hostname
-  ]
-  ttl = 600
-  type = "CNAME"
-} 
 
 resource "aws_route53_record" "validation_record" {
   for_each = {
@@ -182,6 +183,20 @@ resource "aws_security_group" "allow_443" {
   }
 }
 
+resource "aws_security_group" "allow_lb_to_workers" {
+  name        = "allow_lb_to_workers"
+  description = "Allow ALB to talk to EC2 worker nodes"
+  vpc_id      = module.vpc.vpc_id
+  ingress {
+    description = "Allow all from ALB"
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    security_groups = ["${aws_security_group.allow_443.id}"]
+  }
+}
+
+
 resource "aws_acm_certificate" "cert" {
   domain_name       = "try.gsoc.armory.io"
   validation_method = "DNS"
@@ -192,6 +207,15 @@ resource "aws_acm_certificate_validation" "cert" {
   validation_record_fqdns = [for record in aws_route53_record.validation_record : record.fqdn]
 }
 
+resource "aws_route53_record" "endpoint" {
+  zone_id = data.aws_route53_zone.zone.id
+  name = "try.gsoc.armory.io"
+  records = [
+    kubernetes_ingress.alb.status.0.load_balancer.0.ingress.0.hostname
+  ]
+  ttl = 600
+  type = "CNAME"
+} 
 // depends on spin-deck
 resource "kubernetes_service" "spin-deck" {
   metadata {
@@ -261,8 +285,6 @@ resource "kubernetes_ingress" "alb" {
       "alb.ingress.kubernetes.io/success-codes"            = "404,200"
       "alb.ingress.kubernetes.io/actions.ssl-redirect"     = "{\"Type\":\"redirect\", \"RedirectConfig\": { \"Protocol\": \"HTTPS\", \"Port\": \"443\", \"StatusCode\": \"HTTP_301\"}}"
       "alb.ingress.kubernetes.io/waf-acl-id"               = null
-#      "alb.ingress.kubernetes.io/target-type"              = "ip"
-
     }
   }
   wait_for_load_balancer = true
