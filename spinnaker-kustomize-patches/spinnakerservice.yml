@@ -20,17 +20,16 @@ spec:
       providers: {}              # Cloud providers supported by spinnaker: kubernetes, aws, gcp, etc.
       repository: {}             # Settings for artifact repositories.
       security:                  # Authentication and authorization.
-        authz:
-          enabled: false
-          # groupMembership:
-          #   service: EXTERNAL
-        authn:
-          enabled: false
+        # authz:
+        #   enabled: false
+        #   # groupMembership:
+        #   #   service: EXTERNAL
+        # authn:
+        #   enabled: false
         apiSecurity:
           ssl:
             enabled: false
-          overrideBaseUrl: https://try.gsoc.armoy.io/api/v1 #https://gate.try.gsoc.armory.io       # Specify your DNS name for Gate with https scheme
-          corsAccessPattern: ^.*$
+          overrideBaseUrl: https://try.gsoc.armory.io/api/v1 #https://gate.try.gsoc.armory.io       # Specify your DNS name for Gate with https scheme
         uiSecurity:
           ssl:
             enabled: false
@@ -43,12 +42,12 @@ spec:
       spinnaker: {}              # Settings in this section are applied to all spinnaker services. Equivalent of "spinnaker-local.yml"
       spinnakerconfig: {}        # Settings in this section are applied to all spinnaker services. Equivalent of "spinnakerconfig.yml", which is in turn equivalent of "bootstrap.yml" of spring boot applications.
       gate: #{}
-        # security.basicform.enabled: true
-        # spring:
-        #   security:
-        #     user:
-        #       name: spinnaker                                        # The basic auth username you want to use.
-        #       password: spinnaker                                    # The basic auth password you want to use.
+        security.basicform.enabled: true
+        spring:
+          security:
+            user:
+              name: spinnaker                                        # The basic auth username you want to use.
+              password: spinnaker                                    # The basic auth password you want to use.
         services:
           rosco:
             enabled: true
@@ -56,7 +55,7 @@ spec:
           keel:
             baseUrl: http://spin-rosco.spinnaker:8087
             enabled: true
-        cors:
+        #cors:
           # allow-mode: "list"
           # allowed-origins: >
           #   http://localhost:9000,
@@ -69,7 +68,7 @@ spec:
           #   https://try.gsoc.armoy.io/api/v1
           # expectLocalhost: true
         # cors:
-          allowedOriginsPattern: ^.*$
+          # allowedOriginsPattern: ^.*$
           # allow-mode: "list"
           # allowed-origins: >
           #   http://localhost:9000,
@@ -99,7 +98,7 @@ spec:
       igor: {}
       clouddriver: {}
       front50: {}
-      settings-local.js: {}      # Config overrides for deck
+      settings-local.js: {}        # Config overrides for deck
 
     # ------- Changes some settings of how the manifests for spinnaker deployments and services are generated.
     # ------- Section "spec.kustomize" gives greater control. Equivalent to "~/.hal/default/service-settings" from Halyard.

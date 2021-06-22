@@ -6,5 +6,6 @@ terraform {
     local      = ">= 1.4"
     random     = ">= 2.1"
     kubernetes = "~> 2.3.2"
+    helm       = ">= 2.2.0"
   }
 }

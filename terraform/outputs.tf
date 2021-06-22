@@ -22,3 +22,7 @@ output "region" {
   description = "AWS region."
   value       = var.region
 }
+
+output "alb" {
+  value = kubernetes_ingress.alb
+}
