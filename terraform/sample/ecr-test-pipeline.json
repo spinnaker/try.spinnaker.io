@@ -1,0 +1,68 @@
+{
+  "keepWaitingPipelines": false,
+  "lastModifiedBy": "spinnaker",
+  "limitConcurrent": true,
+  "spelEvaluator": "v4",
+  "stages": [
+    {
+      "account": "spinnaker",
+      "cloudProvider": "kubernetes",
+      "manifests": [
+        {
+          "apiVersion": "apps/v1",
+          "kind": "Deployment",
+          "metadata": {
+            "name": "ecr-nginx-deployment"
+          },
+          "spec": {
+            "replicas": 1,
+            "selector": {
+              "matchLabels": {
+                "app": "nginx"
+              }
+            },
+            "template": {
+              "metadata": {
+                "labels": {
+                  "app": "nginx"
+                }
+              },
+              "spec": {
+                "containers": [
+                  {
+                    "image": "602961672324.dkr.ecr.us-east-2.amazonaws.com/try-spinnaker-io-nginx:latest",
+                    "name": "nginx",
+                    "ports": [
+                      {
+                        "containerPort": 80
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          }
+        }
+      ],
+      "moniker": {
+        "app": "userland"
+      },
+      "name": "Deploy (Manifest)",
+      "namespaceOverride": "default",
+      "refId": "1",
+      "requisiteStageRefIds": [],
+      "skipExpressionEvaluation": false,
+      "source": "text",
+      "trafficManagement": {
+        "enabled": false,
+        "options": {
+          "enableTraffic": false,
+          "services": []
+        }
+      },
+      "type": "deployManifest"
+    }
+  ],
+  "triggers": [],
+  "updateTs": "1624419217000"
+}

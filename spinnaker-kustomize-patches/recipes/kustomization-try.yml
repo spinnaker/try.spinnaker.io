@@ -28,3 +28,5 @@ patchesStrategicMerge:
   # Kubernetes accounts
   - accounts/kubernetes/patch-kube.yml
 
+  # Docker accounts
+  - accounts/docker/patch-ecr.yml

@@ -14,6 +14,15 @@ spec:
         enabled: true    # Default: true. Indicate if operator should do connectivity checks to configured docker accounts before applying the manifest
   spinnakerConfig:
     config:
+      deploymentEnvironment:
+        sidecars:
+          spin-clouddriver:
+          - name: token-refresh
+            dockerImage: quay.io/skuid/ecr-token-refresh:latest
+            mountPath: /etc/passwords
+            configMapVolumeMounts:
+            - configMapName: token-refresh-config
+              mountPath: /opt/config/ecr-token-refresh
       providers:
         dockerRegistry:
           enabled: true
@@ -21,10 +30,10 @@ spec:
           accounts:
           - name: ecr
             providerVersion: V1
-            address:                          # (Required). The ECR registry address you want to pull and deploy images from
+            address: 602961672324.dkr.ecr.us-east-2.amazonaws.com  # (Required). The ECR registry address you want to pull and deploy images from
             email: fake.email@spinnaker.io    # Your docker registry email (often this only needs to be well-formed, rather than be a real address)
             username: AWS
-            passwordCommand: aws --region us-east-1 ecr get-authorization-token --output text --query 'authorizationData[].authorizationToken' | base64 -d | sed 's/^AWS://'
+            passwordCommand: aws --region us-east-2 ecr get-authorization-token --output text --query 'authorizationData[].authorizationToken' | base64 -d | sed 's/^AWS://'
             cacheIntervalSeconds: 30          # (Default: 30). How many seconds elapse between polling your docker registry. Certain registries are sensitive to over-polling, and larger intervals (e.g. 10 minutes = 600 seconds) are desirable if you’re seeing rate limiting.
             cacheThreads: 1                   # (Default: 1). How many threads to cache all provided repos on. Really only useful if you have a ton of repos.
             clientTimeoutMillis: 60000        # (Default: 60000). Timeout time in milliseconds for this repository.

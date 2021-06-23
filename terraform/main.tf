@@ -112,7 +112,7 @@ variable "public_facing" {
 resource "aws_iam_policy" "AWSLoadBalancerControllerIAMPolicy" {
   name        = "AWSLoadBalancerControllerIAMPolicy"
   description = "https://raw.githubusercontent.com/kubernetes-sigs/aws-load-balancer-controller/v2.2.0/docs/install/iam_policy.json"
-  policy      = file("AWSLoadBalancerControllerIAMPolicy.json")
+  policy      = file("policy/AWSLoadBalancerControllerIAMPolicy.json")
 }
 
 resource "aws_iam_role_policy_attachment" "aws-lbc-attach" {
@@ -355,3 +355,27 @@ resource "null_resource" "update-kubectl-config" {
     command = "aws eks update-kubeconfig --region us-east-2 --name ${data.aws_eks_cluster.cluster.name}"
   }
 }
+
+resource "aws_ecr_repository" "ecr" {
+  name                 = "ecr"
+  image_tag_mutability = "MUTABLE"
+
+  image_scanning_configuration {
+    scan_on_push = true
+  }
+}
+
+resource "aws_iam_role_policy_attachment" "ec2-read-ecr" {
+  policy_arn = "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly"
+  role       = module.eks.worker_iam_role_name
+}
+
+# resource "null_resource" "mirror-dockerhub-to-ecr" {
+#   provisioner "local-exec" {
+#     command = "bash ../spinnaker-kustomize-patches/ecr.sh"
+#   }
+
+#   depends_on = [
+#     aws_ecr_repository.ecr
+#   ]
+# }
