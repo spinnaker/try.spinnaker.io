@@ -356,8 +356,8 @@ resource "null_resource" "update-kubectl-config" {
   }
 }
 
-resource "aws_ecr_repository" "ecr" {
-  name                 = "ecr"
+resource "aws_ecr_repository" "try-spinnaker-io-nginx" {
+  name                 = "try-spinnaker-io-nginx"
   image_tag_mutability = "MUTABLE"
 
   image_scanning_configuration {
