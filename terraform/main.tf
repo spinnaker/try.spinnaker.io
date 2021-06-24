@@ -370,6 +370,28 @@ resource "aws_iam_role_policy_attachment" "ec2-read-ecr" {
   role       = module.eks.worker_iam_role_name
 }
 
+# for token-refresh in patch-erc.yml, move this into patch file?
+# [ERROR] "kubectl kustomize ." returned an error:
+# Error: failed to find an object with ~G_v1_ConfigMap|token-refresh to apply the patch
+# failed to find an object with ~G_v1_ConfigMap|token-refresh to apply the patch
+
+resource "kubernetes_config_map" "token-refresh" {
+  metadata {
+    name = "token-refresh-config"
+    namespace = "spinnaker"
+  }
+    data = {
+    "config.yaml" =   <<EOF
+interval: 30m # defines refresh interval
+registries: # list of registries to refresh
+  - registryId: "${module.vpc.vpc_owner_id}"
+    region: "${var.region}"
+    passwordFile: "/etc/passwords/my-ecr-registry.pass"
+EOF 
+  }
+} 
+
+
 # resource "null_resource" "mirror-dockerhub-to-ecr" {
 #   provisioner "local-exec" {
 #     command = "bash ../spinnaker-kustomize-patches/ecr.sh"

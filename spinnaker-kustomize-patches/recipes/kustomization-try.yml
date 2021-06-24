@@ -30,3 +30,6 @@ patchesStrategicMerge:
 
   # Docker accounts
   - accounts/docker/patch-ecr.yml
+
+  # OAuth 2.0
+  - security/patch-github.yml

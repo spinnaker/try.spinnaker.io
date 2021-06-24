@@ -20,19 +20,13 @@ spec:
       providers: {}              # Cloud providers supported by spinnaker: kubernetes, aws, gcp, etc.
       repository: {}             # Settings for artifact repositories.
       security:                  # Authentication and authorization.
-        # authz:
-        #   enabled: false
-        #   # groupMembership:
-        #   #   service: EXTERNAL
-        # authn:
-        #   enabled: false
         apiSecurity:
           ssl:
-            enabled: false
+            enabled: true
           overrideBaseUrl: https://try.gsoc.armory.io/api/v1 #https://gate.try.gsoc.armory.io       # Specify your DNS name for Gate with https scheme
         uiSecurity:
           ssl:
-            enabled: false
+            enabled: true
           overrideBaseUrl: https://try.gsoc.armory.io       # Specify your DNS name for Deck with https scheme      
       spinnaker: {}              # Configurations for plugins
 
@@ -42,12 +36,12 @@ spec:
       spinnaker: {}              # Settings in this section are applied to all spinnaker services. Equivalent of "spinnaker-local.yml"
       spinnakerconfig: {}        # Settings in this section are applied to all spinnaker services. Equivalent of "spinnakerconfig.yml", which is in turn equivalent of "bootstrap.yml" of spring boot applications.
       gate: #{}
-        security.basicform.enabled: true
-        spring:
-          security:
-            user:
-              name: spinnaker                                        # The basic auth username you want to use.
-              password: spinnaker                                    # The basic auth password you want to use.
+        # security.basicform.enabled: true
+        # spring:
+        #   security:
+        #     user:
+        #       name: spinnaker                                        # The basic auth username you want to use.
+        #       password: spinnaker                                    # The basic auth password you want to use.
         services:
           rosco:
             enabled: true
