@@ -47,4 +47,5 @@ secrets.env
 operator/deploy
 deploy_log.txt
 
-
+**/certs/*
+**/portieris/*

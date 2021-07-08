@@ -6,6 +6,7 @@ spec:
   spinnakerConfig:
     profiles:
       fiat:
+        restrictApplicationCreation: true
         auth:
           permissions:
             provider:
@@ -15,15 +16,23 @@ spec:
                 prefix:
                   enabled: true
                   prefixes:
-                  - prefix: "*"
+                  - prefix: "admin*"
                     permissions:
                       CREATE:
-                      - "group-b-spingo" # group members that CAN create applications if enabled
+                      - "admin" # group members that CAN create applications if enabled
                       READ:
-                      - "spinnaker-admins"
-                      - "role2"
-                      - "role1"
+                      - "admin"
                       WRITE:
-                      - "role1"
+                      - "admin"
                       EXECUTE:
-                      - "role1"
+                      - "admin"
+                  - prefix: "nginx"
+                    permissions:
+                      CREATE:
+                      - "admin" # group members that CAN create applications if enabled
+                      READ:
+                      - "public"
+                      WRITE:
+                      - "admin"
+                      EXECUTE:
+                      - "public"

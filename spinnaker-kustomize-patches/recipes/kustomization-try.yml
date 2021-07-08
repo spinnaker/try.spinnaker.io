@@ -33,3 +33,6 @@ patchesStrategicMerge:
 
   # OAuth 2.0
   - security/patch-github.yml
+
+  - security/patch-file-authz.yml
+  - security/patch-fiat-create-app-roles.yml

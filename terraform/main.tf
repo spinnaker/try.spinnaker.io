@@ -389,7 +389,90 @@ registries: # list of registries to refresh
     passwordFile: "/etc/passwords/my-ecr-registry.pass"
 EOF 
   }
+  depends_on = [
+    null_resource.spinnaker-operator
+  ]
 } 
+
+resource "kubernetes_namespace" "try-spinnaker-io" {
+  metadata {
+    name = "try-spinnaker-io"
+  }
+}
+
+resource "kubernetes_namespace" "ibm-system" {
+  metadata {
+    name = "ibm-system"
+  }
+}
+
+resource "kubernetes_namespace" "portieris" {
+  metadata {
+    name = "portieris"
+  }
+}
+
+# sh ./portieris/gencerts
+resource "helm_release" "portieris" {
+  name       = "portieris"
+  chart      = "./portieris"
+  namespace  = "portieris"
+  # Doesn't even use 
+  depends_on = [
+    kubernetes_namespace.ibm-system, kubernetes_namespace.portieris
+  ]
+}
+
+# resource "aws_acm_certificate" "cert-deploy" {
+#   domain_name       = "try.gsoc.armory.io"
+#   validation_method = "DNS"
+# }
+
+# resource "aws_acm_certificate_validation" "cert-deploy" {
+#   certificate_arn         = aws_acm_certificate.cert-deploy.arn
+#   validation_record_fqdns = [for record in aws_route53_record.validation_record : record.fqdn]
+# }
+
+# resource "aws_route53_record" "endpoint-deploy" {
+#   zone_id = data.aws_route53_zone.zone.id
+#   name = "try.gsoc.armory.io"
+#   records = [
+#     kubernetes endpoint
+#   ]
+#   ttl = 600
+#   type = "CNAME"
+# } 
+# resource "helm_release" "cilium" {
+#   name       = "cilium"
+#   repository = "https://helm.cilium.io"
+#   chart      = "cilium"
+#   version    = "1.10.1"
+#   namespace  = "kube-system"
+#   set {
+#     name  = "eni.enabled"
+#     value = "true"
+#   }
+#   set {
+#     name  = "ipam.mode"
+#     value = "eni"
+#   }
+#   set {
+#     name  = "egressMasqueradeInterfaces"
+#     value = "eth0"
+#   }
+#   set {
+#     name  = "tunnel"
+#     value = "disabled"
+#   }
+#   set {
+#     name  = "nodeinit.enabled"
+#     value = "true"
+#   }
+
+#   depends_on = [
+#     module.vpc
+#   ]
+# }
 
 
 # resource "null_resource" "mirror-dockerhub-to-ecr" {

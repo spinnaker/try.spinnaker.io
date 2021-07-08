@@ -27,15 +27,9 @@ spec:
         # Roles don’t need to be defined elsewhere, they’re automatically created based on these mappings.
         #-----------------------------------------------------------------------------------------------------------------
         users:
-        - username: foo
+        - username: ko28
           roles:
-          - bar
-          - baz
-        - username: batman
+          - admin
+        - username: "*"
           roles:
-          - crimeFighter
-          - jokerJailer
-        - username: robin
-          roles: []
-        - username: joker
-        - username: john.doe@mycompany.com
+          - public

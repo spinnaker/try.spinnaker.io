@@ -10,7 +10,8 @@ TODO:
   - Create [access key]
   - Input keys here `aws configure` 
 - Install [Terraform][]
-- Install kubectl
+- Install kubectl (v1.20.0), new verison break kustomize script
+  - `curl -LO "https://dl.k8s.io/v1.20.0/bin/linux/amd64/kubectl"`
 
 ## Run 
 - Clone this repo 

@@ -1,0 +1,11 @@
+apiVersion: portieris.cloud.ibm.com/v1
+kind: ImagePolicy
+metadata:
+  name: restrict-non-private-ecr-images
+  namespace: try-spinnaker-io
+spec:
+   repositories:
+    - name: "602961672324.dkr.ecr.us-east-2.amazonaws.com/*"
+      policy:
+      
+# disables public repos in namespace try-spinnaker-io
