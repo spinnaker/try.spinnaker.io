@@ -16,7 +16,7 @@ spec:
                 prefix:
                   enabled: true
                   prefixes:
-                  - prefix: "admin*"
+                  - prefix: "*"
                     permissions:
                       CREATE:
                       - "admin" # group members that CAN create applications if enabled

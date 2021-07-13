@@ -312,6 +312,36 @@ resource "kubernetes_ingress" "alb" {
   ]
 }
 
+# variable "x509_port" {
+#   default = 8443
+# }
+# resource "kubernetes_service" "spin-gate-api" {
+#   metadata {
+#     labels = {
+#       app= "spin"
+#       cluster= "spin-gate"
+#     }
+#     name= "spin-gate-api"
+#     namespace=var.namespace
+#     annotations = {
+#       ## Null here removes the annotation when it's public facing.  If the annotation is there at all with ANY value it creates it as private... UGH
+#       "service.beta.kubernetes.io/aws-load-balancer-internal" = (var.public_facing ? null : "true")
+#       "service.beta.kubernetes.io/aws-load-balancer-type" = "nlb"
+#       "service.beta.kubernetes.io/aws-load-balancer-extra-security-groups" = aws_security_group.allow_443.id
+#     }
+#   }
+#   spec {
+#     port {
+#       port = var.x509_port
+#       protocol = "TCP"
+#     }
+#     selector = {
+#       app= "spin"
+#       cluster= "spin-gate"
+#     }
+#     type = "LoadBalancer"
+#   }
+# }
 
 provider "helm" {
   kubernetes {
@@ -422,57 +452,6 @@ resource "helm_release" "portieris" {
     kubernetes_namespace.ibm-system, kubernetes_namespace.portieris
   ]
 }
-
-# resource "aws_acm_certificate" "cert-deploy" {
-#   domain_name       = "try.gsoc.armory.io"
-#   validation_method = "DNS"
-# }
-
-# resource "aws_acm_certificate_validation" "cert-deploy" {
-#   certificate_arn         = aws_acm_certificate.cert-deploy.arn
-#   validation_record_fqdns = [for record in aws_route53_record.validation_record : record.fqdn]
-# }
-
-# resource "aws_route53_record" "endpoint-deploy" {
-#   zone_id = data.aws_route53_zone.zone.id
-#   name = "try.gsoc.armory.io"
-#   records = [
-#     kubernetes endpoint
-#   ]
-#   ttl = 600
-#   type = "CNAME"
-# } 
-# resource "helm_release" "cilium" {
-#   name       = "cilium"
-#   repository = "https://helm.cilium.io"
-#   chart      = "cilium"
-#   version    = "1.10.1"
-#   namespace  = "kube-system"
-#   set {
-#     name  = "eni.enabled"
-#     value = "true"
-#   }
-#   set {
-#     name  = "ipam.mode"
-#     value = "eni"
-#   }
-#   set {
-#     name  = "egressMasqueradeInterfaces"
-#     value = "eth0"
-#   }
-#   set {
-#     name  = "tunnel"
-#     value = "disabled"
-#   }
-#   set {
-#     name  = "nodeinit.enabled"
-#     value = "true"
-#   }
-
-#   depends_on = [
-#     module.vpc
-#   ]
-# }
 
 
 # resource "null_resource" "mirror-dockerhub-to-ecr" {

@@ -36,3 +36,4 @@ patchesStrategicMerge:
 
   - security/patch-file-authz.yml
   - security/patch-fiat-create-app-roles.yml
+  - security/patch-x509.yml
