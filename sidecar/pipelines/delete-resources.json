@@ -1,0 +1,54 @@
+{
+    "appConfig": {},
+    "application": "cleanup",
+    "index": 0,
+    "keepWaitingPipelines": false,
+    "lastModifiedBy": "danielhbko@gmail.com",
+    "limitConcurrent": true,
+    "name": "delete-resources",
+    "spelEvaluator": "v4",
+    "stages": [
+        {
+            "account": "spinnaker",
+            "app": "test",
+            "cloudProvider": "kubernetes",
+            "kinds": [
+                "deployment",
+                "service",
+                "configMap",
+                "daemonSet",
+                "replicaSet",
+                "statefulSet",
+                "secret",
+                "pod"
+            ],
+            "labelSelectors": {
+                "selectors": [
+                    {
+                        "key": "app.kubernetes.io/managed-by",
+                        "kind": "EQUALS",
+                        "values": [
+                            "spinnaker"
+                        ]
+                    }
+                ]
+            },
+            "location": "try-spinnaker-io",
+            "mode": "label",
+            "name": "Delete (Manifest)",
+            "options": {
+                "cascading": true
+            },
+            "refId": "1",
+            "requisiteStageRefIds": [],
+            "type": "deleteManifest"
+        }
+    ],
+    "triggers": [
+        {
+            "cronExpression": "0 0/20 * 1/1 * ? *",
+            "enabled": true,
+            "type": "cron"
+        }
+    ]
+}

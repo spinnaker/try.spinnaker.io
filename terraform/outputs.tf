@@ -23,6 +23,6 @@ output "region" {
   value       = var.region
 }
 
-output "alb" {
-  value = kubernetes_ingress.alb
-}
+# output "alb" {
+#   value = kubernetes_ingress.alb
+# }

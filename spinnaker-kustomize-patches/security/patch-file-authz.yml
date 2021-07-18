@@ -27,9 +27,11 @@ spec:
         # Roles don’t need to be defined elsewhere, they’re automatically created based on these mappings.
         #-----------------------------------------------------------------------------------------------------------------
         users:
-        - username: ko28
+        - username: "danielhbko@gmail.com"
           roles:
           - admin
-        - username: "*"
-          roles:
-          - public
+
+
+# - username: "*"
+#   roles:
+#   - public

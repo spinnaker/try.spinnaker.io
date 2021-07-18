@@ -283,6 +283,8 @@ resource "kubernetes_ingress" "alb" {
       "alb.ingress.kubernetes.io/success-codes"            = "404,200"
       "alb.ingress.kubernetes.io/actions.ssl-redirect"     = "{\"Type\":\"redirect\", \"RedirectConfig\": { \"Protocol\": \"HTTPS\", \"Port\": \"443\", \"StatusCode\": \"HTTP_301\"}}"
       "alb.ingress.kubernetes.io/waf-acl-id"               = null
+      # "alb.ingress.kubernetes.io/backend-protocol"         = "HTTPS"
+      # "alb.ingress.kubernetes.io/healthcheck-protocol"     = "HTTPS"
     }
   }
   wait_for_load_balancer = true
@@ -313,7 +315,7 @@ resource "kubernetes_ingress" "alb" {
 }
 
 # variable "x509_port" {
-#   default = 8443
+#   default = 8085
 # }
 # resource "kubernetes_service" "spin-gate-api" {
 #   metadata {
@@ -442,16 +444,17 @@ resource "kubernetes_namespace" "portieris" {
   }
 }
 
-# sh ./portieris/gencerts
-resource "helm_release" "portieris" {
-  name       = "portieris"
-  chart      = "./portieris"
-  namespace  = "portieris"
-  # Doesn't even use 
-  depends_on = [
-    kubernetes_namespace.ibm-system, kubernetes_namespace.portieris
-  ]
-}
+# # sh ./portieris/gencerts
+# resource "helm_release" "portieris" {
+#   name       = "portieris"
+#   chart      = "./portieris"
+#   namespace  = "portieris"
+#   # Doesn't even use 
+#   depends_on = [
+#     kubernetes_namespace.ibm-system, kubernetes_namespace.portieris, null_resource.spinnaker-operator
+#   ]
+#  # apply manifest for p
+# }
 
 
 # resource "null_resource" "mirror-dockerhub-to-ecr" {

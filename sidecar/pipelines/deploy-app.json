@@ -1,0 +1,165 @@
+{
+    "application": "web-app",
+    "index": 0,
+    "keepWaitingPipelines": false,
+    "lastModifiedBy": "danielhbko@gmail.com",
+    "limitConcurrent": true,
+    "name": "deploy-app",
+    "spelEvaluator": "v4",
+    "stages": [
+        {
+            "account": "spinnaker",
+            "cloudProvider": "kubernetes",
+            "manifests": [
+                {
+                    "apiVersion": "v1",
+                    "data": {
+                        "index.html": "<!DOCTYPE html>\n<html>\n<head>\n<style>\nh1 {text-align: center; font-family: \"Garamond\";}\np {text-align: center;}\ndiv {text-align: center;}\n</style>\n</head>\n<body>\n\n<h1>Welcome to web-app!</h1>\n<p>Hosted by try.spinnaker.io</p>\n<div> <img src=\"https://spinnaker.io/images/spinnaker-logo-transparent-color.png\" alt=\"spinnaker-logo\"> </div>\n\n</body>\n</html>"
+                    },
+                    "kind": "ConfigMap",
+                    "metadata": {
+                        "name": "index-for-nginx"
+                    }
+                }
+            ],
+            "moniker": {
+                "app": "web-app"
+            },
+            "name": "Deploy configmap",
+            "namespaceOverride": "try-spinnaker-io",
+            "refId": "1",
+            "requisiteStageRefIds": [],
+            "skipExpressionEvaluation": false,
+            "source": "text",
+            "trafficManagement": {
+                "enabled": false,
+                "options": {
+                    "enableTraffic": false,
+                    "services": []
+                }
+            },
+            "type": "deployManifest"
+        },
+        {
+            "account": "spinnaker",
+            "cloudProvider": "kubernetes",
+            "manifests": [
+                {
+                    "apiVersion": "apps/v1",
+                    "kind": "Deployment",
+                    "metadata": {
+                        "name": "nginx-deployment"
+                    },
+                    "spec": {
+                        "replicas": 1,
+                        "selector": {
+                            "matchLabels": {
+                                "app": "nginx"
+                            }
+                        },
+                        "template": {
+                            "metadata": {
+                                "labels": {
+                                    "app": "nginx"
+                                }
+                            },
+                            "spec": {
+                                "containers": [
+                                    {
+                                        "image": "nginx:latest",
+                                        "name": "nginx",
+                                        "ports": [
+                                            {
+                                                "containerPort": 80
+                                            }
+                                        ],
+                                        "volumeMounts": [
+                                            {
+                                                "mountPath": "/usr/share/nginx/html/index.html",
+                                                "name": "index",
+                                                "subPath": "index.html"
+                                            }
+                                        ]
+                                    }
+                                ],
+                                "volumes": [
+                                    {
+                                        "configMap": {
+                                            "defaultMode": 420,
+                                            "name": "index-for-nginx"
+                                        },
+                                        "name": "index"
+                                    }
+                                ]
+                            }
+                        }
+                    }
+                }
+            ],
+            "moniker": {
+                "app": "web-app"
+            },
+            "name": "Deploy nginx server",
+            "namespaceOverride": "try-spinnaker-io",
+            "refId": "2",
+            "requisiteStageRefIds": [
+                "1"
+            ],
+            "skipExpressionEvaluation": false,
+            "source": "text",
+            "trafficManagement": {
+                "enabled": false,
+                "options": {
+                    "enableTraffic": false,
+                    "services": []
+                }
+            },
+            "type": "deployManifest"
+        },
+        {
+            "account": "spinnaker",
+            "cloudProvider": "kubernetes",
+            "manifests": [
+                {
+                    "apiVersion": "v1",
+                    "kind": "Service",
+                    "metadata": {
+                        "name": "nginx-loadbalancer"
+                    },
+                    "spec": {
+                        "ports": [
+                            {
+                                "port": 80,
+                                "targetPort": 80
+                            }
+                        ],
+                        "selector": {
+                            "app": "nginx"
+                        },
+                        "type": "LoadBalancer"
+                    }
+                }
+            ],
+            "moniker": {
+                "app": "web-app"
+            },
+            "name": "Deploy load balancer",
+            "namespaceOverride": "try-spinnaker-io",
+            "refId": "3",
+            "requisiteStageRefIds": [
+                "2"
+            ],
+            "skipExpressionEvaluation": false,
+            "source": "text",
+            "trafficManagement": {
+                "enabled": false,
+                "options": {
+                    "enableTraffic": false,
+                    "services": []
+                }
+            },
+            "type": "deployManifest"
+        }
+    ],
+    "triggers": []
+}
