@@ -26,9 +26,18 @@ spec:
             permissions: {}
             dockerRegistries: []
             cacheThreads: 1                  # Number of caching agents for this kubernetes account. Each agent handles a subset of the namespaces available to this account. By default, only 1 agent caches all kinds for all namespaces in the account.
-            namespaces: []                   # A list of namespaces this Spinnaker account can deploy to and will cache. When no namespaces are configured, this defaults to ‘all namespaces’.
+            namespaces:                    # A list of namespaces this Spinnaker account can deploy to and will cache. When no namespaces are configured, this defaults to ‘all namespaces’.
+              - "try-spinnaker-io"
             omitNamespaces: []               # A list of namespaces this Spinnaker account cannot deploy to or cache. This can only be set when –namespaces is empty or not set.
-            kinds: []                        # A list of resource kinds this Spinnaker account can deploy to and will cache. When no kinds are configured, this defaults to ‘all kinds described here https://spinnaker.io/reference/providers/kubernetes-v2/'.
+            kinds:                         # A list of resource kinds this Spinnaker account can deploy to and will cache. When no kinds are configured, this defaults to ‘all kinds described here https://spinnaker.io/reference/providers/kubernetes-v2/'.
+              - "deployment"
+              - "service"
+              - "configMap"
+              - "daemonSet"
+              - "replicaSet"
+              - "statefulSet"
+              - "pod"
+              - "secret"
             omitKinds: []                    # A list of resource kinds this Spinnaker account cannot deploy to or cache. This can only be set when –kinds is empty or not set.
             customResources: []              # List of Kubernetes custom resources to managed by clouddriver and made available for use in patch and delete manifest stages.
             checkPermissionsOnStartup: true  # When false, clouddriver will skip the permission checks for all Kubernetes Kinds at startup. This can save a great deal of time during clouddriver startup when you have many Kubernetes accounts configured. This disables the log messages at startup about missing permissions.

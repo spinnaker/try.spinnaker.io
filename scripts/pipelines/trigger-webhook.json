@@ -1,0 +1,24 @@
+{
+    "application": "Trigger",
+    "keepWaitingPipelines": false,
+    "lastModifiedBy": "danielhbko@gmail.com",
+    "limitConcurrent": true,
+    "name": "Trigger Webhook",
+    "spelEvaluator": "v4",
+    "stages": [
+      {
+        "name": "Wait",
+        "refId": "1",
+        "requisiteStageRefIds": [],
+        "type": "wait",
+        "waitTime": 30
+      }
+    ],
+    "triggers": [
+      {
+        "enabled": true,
+        "source": "test",
+        "type": "webhook"
+      }
+    ]
+  }

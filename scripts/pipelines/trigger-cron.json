@@ -1,0 +1,25 @@
+{
+    "application": "Trigger",
+    "keepWaitingPipelines": false,
+    "lastModifiedBy": "danielhbko@gmail.com",
+    "limitConcurrent": true,
+    "name": "Trigger Cron",
+    "spelEvaluator": "v4",
+    "stages": [
+      {
+        "name": "Wait",
+        "refId": "1",
+        "requisiteStageRefIds": [],
+        "type": "wait",
+        "waitTime": 30
+      }
+    ],
+    "triggers": [
+      {
+        "cronExpression": "0 0/5 * 1/1 * ? *",
+        "enabled": true,
+        "id": "e6ba9445-bc17-453c-a27e-37fe72869da6",
+        "type": "cron"
+      }
+    ]
+  }

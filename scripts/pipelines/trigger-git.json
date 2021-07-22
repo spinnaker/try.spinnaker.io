@@ -1,0 +1,28 @@
+
+{
+    "application": "Trigger",
+    "keepWaitingPipelines": false,
+    "lastModifiedBy": "danielhbko@gmail.com",
+    "limitConcurrent": true,
+    "name": "Trigger Git",
+    "spelEvaluator": "v4",
+    "stages": [
+      {
+        "name": "Wait",
+        "refId": "1",
+        "requisiteStageRefIds": [],
+        "type": "wait",
+        "waitTime": 30
+      }
+    ],
+    "triggers": [
+      {
+        "branch": "master",
+        "enabled": true,
+        "project": "spinnaker",
+        "slug": "gate",
+        "source": "github",
+        "type": "git"
+      }
+    ]
+}

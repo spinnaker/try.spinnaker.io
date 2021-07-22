@@ -33,6 +33,7 @@ patchesStrategicMerge:
 
   # OAuth 2.0
   - security/patch-google.yml
+  # - security/patch-aws-cognito.yml
 
   - security/patch-file-authz.yml
   - security/patch-fiat-create-app-roles.yml

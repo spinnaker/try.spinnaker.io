@@ -26,13 +26,25 @@ spec:
                       - "admin"
                       EXECUTE:
                       - "admin"
-                  - prefix: "nginx"
+                  - prefix: "web-app"
                     permissions:
                       CREATE:
                       - "admin" # group members that CAN create applications if enabled
                       READ:
+                      - "admin"
                       - "public"
                       WRITE:
                       - "admin"
                       EXECUTE:
+                      - "admin"
                       - "public"
+                  - prefix: "cleanup"
+                    permissions:
+                      CREATE:
+                      - "admin" # group members that CAN create applications if enabled
+                      READ:
+                      - "admin"
+                      WRITE:
+                      - "admin"
+                      EXECUTE:
+                      - "admin"

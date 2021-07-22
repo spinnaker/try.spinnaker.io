@@ -1,0 +1,292 @@
+{
+    "application": "Highlander",
+    "index": 0,
+    "keepWaitingPipelines": false,
+    "lastModifiedBy": "danielhbko@gmail.com",
+    "limitConcurrent": true,
+    "name": "Highlander Demo",
+    "spelEvaluator": "v4",
+    "stages": [
+      {
+        "account": "spinnaker",
+        "cloudProvider": "kubernetes",
+        "manifests": [
+          {
+            "apiVersion": "apps/v1",
+            "kind": "ReplicaSet",
+            "metadata": {
+              "annotations": {
+                "traffic.spinnaker.io/load-balancers": "[\"service high-service\"]"
+              },
+              "name": "high"
+            },
+            "spec": {
+              "replicas": 1,
+              "selector": {
+                "matchLabels": {
+                  "app": "high"
+                }
+              },
+              "template": {
+                "metadata": {
+                  "labels": {
+                    "tier": "high"
+                  }
+                },
+                "spec": {
+                  "containers": [
+                    {
+                      "image": "nginx:latest",
+                      "name": "high",
+                      "ports": [
+                        {
+                          "containerPort": 80
+                        }
+                      ],
+                      "volumeMounts": [
+                        {
+                          "mountPath": "/usr/share/nginx/html/index.html",
+                          "name": "index",
+                          "subPath": "index.html"
+                        }
+                      ]
+                    }
+                  ],
+                  "volumes": [
+                    {
+                      "configMap": {
+                        "defaultMode": 420,
+                        "name": "index-for-high-v1"
+                      },
+                      "name": "index"
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        ],
+        "moniker": {
+          "app": "web-app"
+        },
+        "name": "Rollout Version 1.0",
+        "namespaceOverride": "try-spinnaker-io",
+        "refId": "1",
+        "requisiteStageRefIds": [
+          "3",
+          "2"
+        ],
+        "skipExpressionEvaluation": false,
+        "source": "text",
+        "trafficManagement": {
+          "enabled": true,
+          "options": {
+            "enableTraffic": true,
+            "namespace": "try-spinnaker-io",
+            "services": [
+              "service high-service"
+            ],
+            "strategy": "highlander"
+          }
+        },
+        "type": "deployManifest"
+      },
+      {
+        "account": "spinnaker",
+        "cloudProvider": "kubernetes",
+        "manifests": [
+          {
+            "apiVersion": "v1",
+            "data": {
+              "index.html": "<!DOCTYPE html>\n<html>\n<head>\n<style>\nh1 {text-align: center; font-family: \"Garamond\";}\np {text-align: center;}\ndiv {text-align: center;}\nbody {background-color: #d1fff4;} </style>\n</head>\n<body>\n\n<h1>Highlander Deployment!</h1> <h1>Verison 1.0!</h1>\n<p>Hosted by try.spinnaker.io</p>\n<div> <img src=\"https://spinnaker.io/images/spinnaker-logo-transparent-color.png\" alt=\"spinnaker-logo\"> </div>\n\n</body>\n</html>"
+            },
+            "kind": "ConfigMap",
+            "metadata": {
+              "name": "index-for-high-v1"
+            }
+          },
+          {
+            "apiVersion": "v1",
+            "data": {
+              "index.html": "<!DOCTYPE html>\n<html>\n<head>\n<style>\nh1 {text-align: center; font-family: \"Garamond\";}\np {text-align: center;}\ndiv {text-align: center;}\nbody {background-color: #ffd1dc;} </style>\n</head>\n<body>\n\n<h1>Highlander Deployment! Verison 2.0!</h1>\n<p>Hosted by try.spinnaker.io</p>\n<div> <img src=\"https://spinnaker.io/images/spinnaker-logo-transparent-color.png\" alt=\"spinnaker-logo\"> </div>\n\n</body>\n</html>"
+            },
+            "kind": "ConfigMap",
+            "metadata": {
+              "name": "index-for-high-v2"
+            }
+          }
+        ],
+        "moniker": {
+          "app": "highlander-demo"
+        },
+        "name": "ConfigMap for HTML",
+        "namespaceOverride": "try-spinnaker-io",
+        "refId": "2",
+        "requisiteStageRefIds": [],
+        "skipExpressionEvaluation": false,
+        "source": "text",
+        "trafficManagement": {
+          "enabled": false,
+          "options": {
+            "enableTraffic": false,
+            "services": []
+          }
+        },
+        "type": "deployManifest"
+      },
+      {
+        "account": "spinnaker",
+        "cloudProvider": "kubernetes",
+        "manifests": [
+          {
+            "apiVersion": "v1",
+            "kind": "Service",
+            "metadata": {
+              "name": "high-service"
+            },
+            "spec": {
+              "ports": [
+                {
+                  "port": 80,
+                  "targetPort": 80
+                }
+              ],
+              "selector": {
+                "app": "high"
+              },
+              "type": "LoadBalancer"
+            }
+          }
+        ],
+        "moniker": {
+          "app": "highlander-demo"
+        },
+        "name": "Deploy Load Balancer Service",
+        "namespaceOverride": "try-spinnaker-io",
+        "refId": "3",
+        "requisiteStageRefIds": [],
+        "skipExpressionEvaluation": false,
+        "source": "text",
+        "trafficManagement": {
+          "enabled": false,
+          "options": {
+            "enableTraffic": true,
+            "namespace": "try-spinnaker-io",
+            "services": [
+              "service high-loadbalancer"
+            ],
+            "strategy": "highlander"
+          }
+        },
+        "type": "deployManifest"
+      },
+      {
+        "failPipeline": true,
+        "instructions": "Did you view Version 1.0? Go to the load balancer tab and click on high-service to get a the app. You may need to change https to http because the load balancer does not support ssl.",
+        "judgmentInputs": [],
+        "name": "Go and view Version 1.0!",
+        "notifications": [],
+        "refId": "4",
+        "requisiteStageRefIds": [
+          "1"
+        ],
+        "type": "manualJudgment"
+      },
+      {
+        "account": "spinnaker",
+        "cloudProvider": "kubernetes",
+        "manifests": [
+          {
+            "apiVersion": "apps/v1",
+            "kind": "ReplicaSet",
+            "metadata": {
+              "annotations": {
+                "traffic.spinnaker.io/load-balancers": "[\"service high-service\"]"
+              },
+              "name": "high"
+            },
+            "spec": {
+              "replicas": 1,
+              "selector": {
+                "matchLabels": {
+                  "app": "high"
+                }
+              },
+              "template": {
+                "metadata": {
+                  "labels": {
+                    "tier": "high"
+                  }
+                },
+                "spec": {
+                  "containers": [
+                    {
+                      "image": "nginx:latest",
+                      "name": "high",
+                      "ports": [
+                        {
+                          "containerPort": 80
+                        }
+                      ],
+                      "volumeMounts": [
+                        {
+                          "mountPath": "/usr/share/nginx/html/index.html",
+                          "name": "index",
+                          "subPath": "index.html"
+                        }
+                      ]
+                    }
+                  ],
+                  "volumes": [
+                    {
+                      "configMap": {
+                        "defaultMode": 420,
+                        "name": "index-for-high-v2"
+                      },
+                      "name": "index"
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        ],
+        "moniker": {
+          "app": "highlander-demo"
+        },
+        "name": "Rollout Version 2.0",
+        "namespaceOverride": "try-spinnaker-io",
+        "refId": "6",
+        "requisiteStageRefIds": [
+          "4"
+        ],
+        "skipExpressionEvaluation": false,
+        "source": "text",
+        "trafficManagement": {
+          "enabled": true,
+          "options": {
+            "enableTraffic": true,
+            "namespace": "try-spinnaker-io",
+            "services": [
+              "service high-service"
+            ],
+            "strategy": "highlander"
+          }
+        },
+        "type": "deployManifest"
+      },
+      {
+        "failPipeline": true,
+        "instructions": "Did you view Version 2.0? Go to the load balancer tab and click on high-service to get a the app. You may need to change https to http because the load balancer does not support ssl. \n\nHope you had fun (*・ω・)ﾉ",
+        "judgmentInputs": [],
+        "name": "Go and view Version 2.0!",
+        "notifications": [],
+        "refId": "7",
+        "requisiteStageRefIds": [
+          "6"
+        ],
+        "type": "manualJudgment"
+      }
+    ],
+    "triggers": []
+}

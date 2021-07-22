@@ -314,37 +314,6 @@ resource "kubernetes_ingress" "alb" {
   ]
 }
 
-# variable "x509_port" {
-#   default = 8085
-# }
-# resource "kubernetes_service" "spin-gate-api" {
-#   metadata {
-#     labels = {
-#       app= "spin"
-#       cluster= "spin-gate"
-#     }
-#     name= "spin-gate-api"
-#     namespace=var.namespace
-#     annotations = {
-#       ## Null here removes the annotation when it's public facing.  If the annotation is there at all with ANY value it creates it as private... UGH
-#       "service.beta.kubernetes.io/aws-load-balancer-internal" = (var.public_facing ? null : "true")
-#       "service.beta.kubernetes.io/aws-load-balancer-type" = "nlb"
-#       "service.beta.kubernetes.io/aws-load-balancer-extra-security-groups" = aws_security_group.allow_443.id
-#     }
-#   }
-#   spec {
-#     port {
-#       port = var.x509_port
-#       protocol = "TCP"
-#     }
-#     selector = {
-#       app= "spin"
-#       cluster= "spin-gate"
-#     }
-#     type = "LoadBalancer"
-#   }
-# }
-
 provider "helm" {
   kubernetes {
     host                   = data.aws_eks_cluster.cluster.endpoint
@@ -444,14 +413,20 @@ resource "kubernetes_namespace" "portieris" {
   }
 }
 
+# resource "null_resource" "download-portieris" {
+#   provisioner "local-exec" {
+#     command = "bash ../scripts/portieris.sh"
+#   }
+# }
+
 # # sh ./portieris/gencerts
 # resource "helm_release" "portieris" {
 #   name       = "portieris"
-#   chart      = "./portieris"
+#   chart      = "../scripts/portieris/"
 #   namespace  = "portieris"
 #   # Doesn't even use 
 #   depends_on = [
-#     kubernetes_namespace.ibm-system, kubernetes_namespace.portieris, null_resource.spinnaker-operator
+#     kubernetes_namespace.ibm-system, kubernetes_namespace.portieris, null_resource.spinnaker-operator, null_resource.download-portieris
 #   ]
 #  # apply manifest for p
 # }

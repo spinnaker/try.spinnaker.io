@@ -30,8 +30,11 @@ spec:
         - username: "danielhbko@gmail.com"
           roles:
           - admin
-
-
-# - username: "*"
-#   roles:
-#   - public
+          - public
+        - username: "sidecar@try-spinnaker-io.iam.gserviceaccount.com"
+          roles:
+          - admin
+          - public
+        - username: ".*"
+          roles:
+          - public
