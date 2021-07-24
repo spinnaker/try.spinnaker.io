@@ -1,6 +1,6 @@
 # try.spinnaker.io
 
-try.spinnaker.io is a hosted playground version of [Spinnaker][] aimed for new users to test out its UI and core features. 🌊🏄 
+try.spinnaker.io is a hosted playground version of [Spinnaker][] aimed for new users to test out its UI and core features. 
 
 ## Features
 
@@ -19,26 +19,26 @@ try.spinnaker.io is a hosted playground version of [Spinnaker][] aimed for new u
 - ~~Metrics~~(wip)
 
 ## Requirements 
-- Install [awscli][]
+- [awscli][]
   - Create [access key][]
   - Input keys here `aws configure` 
 - [Route53 hosted zone][]
-- Install [Terraform][]
-- Install kubectl (v1.20.0), new verisons break kustomize script for Spinnaker operator
+- [Terraform][]
+- kubectl (v1.20.0), new verisons break kustomize script for Spinnaker operator
   - `curl -LO "https://dl.k8s.io/v1.20.0/bin/linux/amd64/kubectl"`
 - [Google OAuth 2.0 Client ID][]
 
 ## Configuration
 ### Terraform 
-- Edit the values `region`, `route53_zone`, and `domain_name` in variables.tf. Note: `domain_name` must be a subdomain of `route53_zone`, i.e. if `route53_zone = spinnaker.io` `then domain_name = try.spinnaker.io`.
+Edit the values `region`, `route53_zone`, and `domain_name` in `terraform/variables.tf`. Note: `domain_name` must be a subdomain of `route53_zone`, i.e. if `route53_zone = spinnaker.io` `then domain_name = try.spinnaker.io`.
 ### Spinnaker Operator
 Files are inside the `spinnaker-kustomize-patches` folder.
 | File Name                     | Description  |
 | ----------------------------- | ------------ |
 | kustomization.yml | Main kustomize file.  |
-| spinnakerservice.yml | Contains configuration for Spinnaker. Update `spec.spinnakerConfig.config.version` to the version of OOS Spinnaker you wish to deploy. Update the value of `https://try.gsoc.armory.io` in `spec.spinnakerConfig.config.*.apiSecurity.overrideBaseUrl` to your DNS name. |
+| spinnakerservice.yml | Contains configuration for Spinnaker. <br><br> Update `spec.spinnakerConfig.config.version` to the version of OOS Spinnaker you wish to deploy. <br><br> Update the value of `https://try.gsoc.armory.io` in `spec.spinnakerConfig.config.*.apiSecurity.overrideBaseUrl` to your DNS name. |
 | security/patch-file-authz.yml | Update `users.username` to the admin email you will login with Google OAuth in `spec.spinnakerConfig.files.rolemappings.yml` |
-| security/patch-google.yml | Update `spec.spinnakerConfig.config.security.authn.client.clientId` to your Google OAuth 2.0 Client ID. Create a file called `spinnaker-kustomize-patches/secrets/secrets.env` and add your Secret ID to the file in in this format` oauth-client-secret=fakepassword123` |
+| security/patch-google.yml | Update `spec.spinnakerConfig.config.security.authn.client.clientId` to your Google OAuth 2.0 Client ID. <br><br> Create a file called `spinnaker-kustomize-patches/secrets/secrets.env` and add your Secret ID to the file in in this format` oauth-client-secret=fakepassword123` |
 | accounts/docker/patch-ecr.yml                  | Update `spec.spinnakerConfig.providers.dockerRegistry.accounts.address` to the address of your ECR registry. |
 
 
@@ -60,7 +60,7 @@ When you are all done then run:
 ```
 terraform destroy
 ```
-You may need to go into AWS Web Console to delete dangling load balances or VPC in the case that Terraform won't delete it. 
+You may need to go into AWS Web Console to delete dangling load balancers or VPC in the case that Terraform doesn't delete it. 
 
 [Spinnaker]: https://spinnaker.io/
 [highlander]: https://spinnaker.io/docs/guides/user/kubernetes-v2/rollout-strategies/#highlander-rollouts
