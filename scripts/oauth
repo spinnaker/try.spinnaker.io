@@ -1,0 +1,13 @@
+# Sample outh config for spin
+Auth:
+  Enabled: true
+  OAuth2:
+    AuthUrl: https://accounts.google.com/o/oauth2/v2/auth
+    ClientId: changeme!!
+    ClientSecret: changeme!!
+    Scopes:
+    - profile email
+    TokenUrl: https://www.googleapis.com/oauth2/v4/token
+Gate:
+  Endpoint: https://try.gsoc.armory.io/api/v1
+

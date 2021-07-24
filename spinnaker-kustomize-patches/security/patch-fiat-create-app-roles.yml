@@ -38,6 +38,30 @@ spec:
                       EXECUTE:
                       - "admin"
                       - "public"
+                  - prefix: "Trigger"
+                    permissions:
+                      CREATE:
+                      - "admin" # group members that CAN create applications if enabled
+                      READ:
+                      - "admin"
+                      - "public"
+                      WRITE:
+                      - "admin"
+                      EXECUTE:
+                      - "admin"
+                      - "public"
+                  - prefix: "Highlander"
+                    permissions:
+                      CREATE:
+                      - "admin" # group members that CAN create applications if enabled
+                      READ:
+                      - "admin"
+                      - "public"
+                      WRITE:
+                      - "admin"
+                      EXECUTE:
+                      - "admin"
+                      - "public"
                   - prefix: "cleanup"
                     permissions:
                       CREATE:

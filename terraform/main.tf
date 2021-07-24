@@ -123,7 +123,7 @@ resource "aws_iam_role_policy_attachment" "aws-lbc-attach" {
 data "aws_route53_zone" "zone" {
   # prvoider = aws.
   # name = "spinnaker.io"
-  name = "gsoc.armory.io"
+  name = var.route53_zone
 }
 
 resource "aws_route53_record" "validation_record" {
@@ -187,7 +187,7 @@ resource "aws_security_group" "allow_lb_to_workers" {
 
 
 resource "aws_acm_certificate" "cert" {
-  domain_name       = "try.gsoc.armory.io"
+  domain_name       = var.domain_name
   validation_method = "DNS"
 }
 
@@ -198,7 +198,7 @@ resource "aws_acm_certificate_validation" "cert" {
 
 resource "aws_route53_record" "endpoint" {
   zone_id = data.aws_route53_zone.zone.id
-  name = "try.gsoc.armory.io"
+  name = var.domain_name
   records = [
     kubernetes_ingress.alb.status.0.load_balancer.0.ingress.0.hostname
   ]
@@ -413,23 +413,33 @@ resource "kubernetes_namespace" "portieris" {
   }
 }
 
-# resource "null_resource" "download-portieris" {
-#   provisioner "local-exec" {
-#     command = "bash ../scripts/portieris.sh"
-#   }
-# }
+resource "null_resource" "download-portieris" {
+  provisioner "local-exec" {
+    command = "bash ../scripts/portieris.sh"
+  }
+}
 
 # # sh ./portieris/gencerts
-# resource "helm_release" "portieris" {
-#   name       = "portieris"
-#   chart      = "../scripts/portieris/"
-#   namespace  = "portieris"
-#   # Doesn't even use 
-#   depends_on = [
-#     kubernetes_namespace.ibm-system, kubernetes_namespace.portieris, null_resource.spinnaker-operator, null_resource.download-portieris
-#   ]
-#  # apply manifest for p
-# }
+resource "helm_release" "portieris" {
+  name       = "portieris"
+  chart      = "../scripts/portieris/"
+  namespace  = "portieris"
+  # Doesn't even use 
+  depends_on = [
+    kubernetes_namespace.ibm-system, kubernetes_namespace.portieris, null_resource.spinnaker-operator, null_resource.download-portieris
+  ]
+ # apply manifest for p
+}
+
+resource "null_resource" "public-image-policy" {
+  provisioner "local-exec" {
+    command = "kubectl apply -f policy/portieris-public-images.yml"
+  }
+
+  depends_on = [
+    helm_release.portieris
+  ]
+}
 
 
 # resource "null_resource" "mirror-dockerhub-to-ecr" {

@@ -1,3 +1,4 @@
+# disables public repos in namespace try-spinnaker-io
 apiVersion: portieris.cloud.ibm.com/v1
 kind: ImagePolicy
 metadata:
@@ -7,5 +8,3 @@ spec:
    repositories:
     - name: "602961672324.dkr.ecr.us-east-2.amazonaws.com/*"
       policy:
-      
-# disables public repos in namespace try-spinnaker-io
