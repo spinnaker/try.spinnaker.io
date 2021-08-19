@@ -1,14 +1,5 @@
 #-----------------------------------------------------------------------------------------------------------------------
-# Example recipe for installing a production Spinnaker instance in AWS EKS clusters, deploying to Kubernetes.
-#
-# Features:
-# - S3 persistent storage
-# - Spinnaker is exposed with ingress
-# - Spinnaker monitoring metrics exposed through prometheus compatible endpoints
-# - SQL storage backend for clouddriver (TODO: add sql configs for orca and front50)
-# - External redis usage
-# - CPU and memory requests and limits defined for clouddriver
-# - Pipelines as code stored in source control (dinghy)
+# Recipe for installing a production Spinnaker instance in AWS EKS clusters, deploying to Kubernetes.
 #-----------------------------------------------------------------------------------------------------------------------
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
@@ -31,11 +22,12 @@ patchesStrategicMerge:
   # Docker accounts
   - accounts/docker/patch-ecr.yml
 
-  # OAuth 2.0
+  # AuthN via OAuth 2.0
   - security/patch-google.yml
-  # - security/patch-aws-cognito.yml
 
+
+  # AuthN 
   - security/patch-file-authz.yml
   - security/patch-fiat-create-app-roles.yml
-  # - security/patch-x509.yml
+
   - plugins/patch-default-role-plugin.yml

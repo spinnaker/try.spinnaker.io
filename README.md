@@ -1,4 +1,7 @@
 # try.spinnaker.io
+<p align="center">
+  <img src="https://raw.githubusercontent.com/spinnaker/spinnaker.io/master/static/images/spinnaker-horizontal-color.png"/>
+</p>
 
 try.spinnaker.io is a hosted playground version of [Spinnaker][] aimed for new users to test out its UI and core features. 
 
@@ -61,6 +64,42 @@ When you are all done then run:
 terraform destroy
 ```
 You may need to go into AWS Web Console to delete dangling load balancers or VPC in the case that Terraform doesn't delete it. 
+
+## Directory Structure
+```
+.
+├── scripts # Contains helper scripts
+│   ├── ecr.sh # Mirrors latest verison of nginx to ECR
+│   ├── install-pipelines.sh # Uses spin cli to install pipelines
+│   ├── oauth # Sample outh config for spin, used for install-pipelines.sh
+│   ├── pipelines # Directory containing pipelines to install
+│   └── portieris.sh # Downloads latest portieris release
+├── spinnaker-kustomize-patches # Patches for Spinnaker Operator 
+│   ├── accounts
+│   │   ├── docker
+│   │   │   └── patch-ecr.yml # Add private ECR registry
+│   │   ├── kubernetes
+│   │   │   ├── patch-kube.yml # Add K8S cluster for Spinnaker to deploy to
+│   │   │   └── spin-sa.yml # K8S service account for Spinnaker 
+│   │   └── s3
+│   │       └── patch-s3.yml # Setup persistent storage for Spinnaker 
+│   ├── deploy.sh # Deploy Spinnaker via Operator. You can redeploy via `SPIN_FLAVOR=oss ./deploy.sh`
+│   ├── kustomization.yml -> recipes/kustomization-try.yml # Softlink to main kustomization file, contains various patches 
+│   ├── plugins
+│   │   └── patch-default-role-plugin.yml # Install github.com/ko28/defaultRolePlugin
+│   ├── secrets
+│   │   └── secrets.env # Local file to store oauth-client-secret
+│   ├── security
+│   │   ├── patch-fiat-create-app-roles.yml # Define what roles can access specific apps
+│   │   └── patch-file-authz.yml # Define fiat roles (admin) for specific users 
+│   └── spinnakerservice.yml # Main spinnaker config file, define version and endpoint
+└── terraform # IaC via Terraform
+    ├── main.tf
+    ├── outputs.tf
+    ├── policy # Directory containing IAM and portieris policies 
+    ├── variables.tf
+    └── versions.tf
+```
 
 [Spinnaker]: https://spinnaker.io/
 [highlander]: https://spinnaker.io/docs/guides/user/kubernetes-v2/rollout-strategies/#highlander-rollouts
