@@ -30,7 +30,7 @@ try.spinnaker.io is a hosted playground version of [Spinnaker][] aimed for new u
 
 ## Configuration
 ### Terraform 
-Edit the values `region`, `route53_zone`, and `domain_name` in `terraform/variables.tf`. Note: `domain_name` must be a subdomain of `route53_zone`, i.e. if `route53_zone = spinnaker.io` `then domain_name = try.spinnaker.io`.
+Edit the values `region`, `route53_zone`, and `domain_name` in `terraform/variables.tf`. Note: `domain_name` must be a subdomain of `route53_zone`, i.e. if `route53_zone = spinnaker.io` then `domain_name = try.spinnaker.io`.
 ### Spinnaker Operator
 Files are inside the `spinnaker-kustomize-patches` folder.
 | File Name                     | Description  |
@@ -38,11 +38,11 @@ Files are inside the `spinnaker-kustomize-patches` folder.
 | kustomization.yml | Main kustomize file.  |
 | spinnakerservice.yml | Contains configuration for Spinnaker. <br><br> Update `spec.spinnakerConfig.config.version` to the version of OOS Spinnaker you wish to deploy. <br><br> Update the value of `https://try.gsoc.armory.io` in `spec.spinnakerConfig.config.*.apiSecurity.overrideBaseUrl` to your DNS name. |
 | security/patch-file-authz.yml | Update `users.username` to the admin email you will login with Google OAuth in `spec.spinnakerConfig.files.rolemappings.yml` |
-| security/patch-google.yml | Update `spec.spinnakerConfig.config.security.authn.client.clientId` to your Google OAuth 2.0 Client ID. <br><br> Create a file called `spinnaker-kustomize-patches/secrets/secrets.env` and add your Secret ID to the file in in this format` oauth-client-secret=fakepassword123` |
+| security/patch-google.yml | Update `spec.spinnakerConfig.config.security.authn.client.clientId` to your Google OAuth 2.0 Client ID. <br><br> Create a file called `spinnaker-kustomize-patches/secrets/secrets.env` and add your Secret ID to the file in in this format `oauth-client-secret=fakepassword123` |
 | accounts/docker/patch-ecr.yml                  | Update `spec.spinnakerConfig.providers.dockerRegistry.accounts.address` to the address of your ECR registry. |
 
 
-## Run
+## Deploy Infrastructure + Code
 Run these commands in the terraform folder.
 ```
 terraform init
@@ -55,7 +55,7 @@ terraform apply
 - Modify `Gate.Endpoint`, `ClientId`, and `ClientSecret`
 - Run script via `bash scripts/spin.sh`
 
-### Shutdown
+### Teardown Infrastructure
 When you are all done then run:
 ```
 terraform destroy
