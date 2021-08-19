@@ -101,13 +101,6 @@ resource "aws_iam_role_policy_attachment" "s3-full" {
 }
 
 /////////////////////////// Networking stuffs ////////////////////////////////////////////
-variable "namespace" {
-  default = "spinnaker"
-}
-
-variable "public_facing" {
-  default = true
-}
 
 resource "aws_iam_policy" "AWSLoadBalancerControllerIAMPolicy" {
   name        = "AWSLoadBalancerControllerIAMPolicy"

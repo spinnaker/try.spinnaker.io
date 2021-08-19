@@ -1,0 +1,23 @@
+#-----------------------------------------------------------------------------------------------------------------
+# Example configuration for enabling a plugin into spinnaker
+#-----------------------------------------------------------------------------------------------------------------
+apiVersion: spinnaker.io/v1alpha2
+kind: SpinnakerService
+metadata:
+  name: spinnaker
+spec:
+  spinnakerConfig:
+    # spec.spinnakerConfig.profiles - This section contains the YAML of each service's profile
+    profiles:
+      fiat:
+        spinnaker:
+          extensibility:
+            plugins:
+              ko28.DefaultRolePlugin:
+                enabled: true
+                version: "1.0.0"
+                config: {}
+            repositories:
+              ko28Repo:
+                id: ko28Repo
+                url: https://raw.githubusercontent.com/ko28/defaultRolePlugin/master/repositories.json

@@ -1,6 +1,5 @@
 {
     "application": "Highlander",
-    "index": 0,
     "keepWaitingPipelines": false,
     "lastModifiedBy": "danielhbko@gmail.com",
     "limitConcurrent": true,
@@ -36,7 +35,7 @@
                 "spec": {
                   "containers": [
                     {
-                      "image": "nginx:latest",
+                      "image": "602961672324.dkr.ecr.us-east-2.amazonaws.com/try-spinnaker-io-nginx:latest",
                       "name": "high",
                       "ports": [
                         {
@@ -221,7 +220,7 @@
                 "spec": {
                   "containers": [
                     {
-                      "image": "nginx:latest",
+                      "image": "602961672324.dkr.ecr.us-east-2.amazonaws.com/try-spinnaker-io-nginx:latest",
                       "name": "high",
                       "ports": [
                         {

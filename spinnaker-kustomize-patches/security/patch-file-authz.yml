@@ -31,6 +31,10 @@ spec:
           roles:
           - admin
           - public
+        - username: "fernando.freire@armory.io"
+          roles:
+          - admin
+          - public
         - username: "sidecar@try-spinnaker-io.iam.gserviceaccount.com"
           roles:
           - admin

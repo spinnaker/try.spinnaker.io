@@ -15,7 +15,7 @@ try.spinnaker.io is a hosted playground version of [Spinnaker][] aimed for new u
   - Auto resource cleanup 
   - Deploy demo web app
   - Deploy using [highlander][] strategy 
-- ~~Authz rules using plugin~~(wip)
+- Authz rules via a Spinnaker [plugin][], adds default role 'public' to all users
 - ~~Metrics~~(wip)
 
 ## Requirements 
@@ -72,3 +72,4 @@ You may need to go into AWS Web Console to delete dangling load balancers or VPC
 [Google OAuth 2.0 Client ID]: https://support.google.com/cloud/answer/6158849?hl=en
 [Route53 hosted zone]: https://aws.amazon.com/route53/faqs/#:~:text=A%20hosted%20zone%20is%20an,domain%20name%20as%20a%20suffix
 [spin]: https://spinnaker.io/docs/setup/other_config/spin/
+[plugin]: https://github.com/ko28/defaultRolePlugin
